@@ -67,8 +67,15 @@ description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图�
 用户用自然语言提修改时：
 1. 找到该报告的 report-plan.json（与 HTML 同目录或 `.visual-report/` 下）；
 2. **只改受影响的 section/block 节点**（按 ID 定位），禁止整体重写 plan；
-3. 重新走 ④⑤⑥（校验 → 渲染 → 质检）；
-4. 向用户说明改了哪些节点。
+3. 用修订命令代替手工重渲染（自动完成：校验 → 渲染 → 质检 → 快照 → 记历史 → 失败保留旧产物）：
+   ```
+   python scripts/revise.py apply report-plan.json -o output/visual-report.html --note "一句话说明改了什么"
+   ```
+4. 向用户复述变更摘要（apply 输出的节点级 diff）；
+5. 用户说"改错了/回上一版"时：`python scripts/revise.py rollback report-plan.json -o output/visual-report.html`；
+6. 查看全部历史：`python scripts/revise.py log report-plan.json`。
+
+修改意图 → 文件路由速查：文案/详略/结论 → 改对应 block 的 content；布局/图表类型/图方向 → 改 section.layout 或 block 的 chartType/diagram 节点；整体风格 → 改 meta.theme（建议先跑 preview 让用户挑）；章节增删 → 增删 section（新 section 记得分配新 ID）。有歧义先问用户，不要自行大范围改写。
 
 ## 反模式（不要做）
 

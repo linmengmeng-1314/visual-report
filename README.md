@@ -19,7 +19,7 @@
 - 📊 **构建期图表**：柱状图/折线图/环形图与**流程/架构图**（网格坐标声明式节点）在构建时渲染为静态 SVG，零 JavaScript 运行时；缺失数据自动断线呈现，不编造
 - 🎨 **Token 化主题**：主题 = 一份 CSS 变量文件，内置 minimal / corporate / tech / editorial / dashboard 五套，一条命令生成全部主题的真实预览供挑选（Show-Don't-Tell）
 - ✅ **三层质量门禁**：Schema 校验（ID 唯一性、白名单、离线约束）+ 静态检查（外部资源、锚点、重复 ID、弱标题、体积）+ 浏览器视觉检查（可选 Playwright：双视口溢出/裂图检测 + 全页及分节截图），不过门禁不交付
-- 🏷️ **稳定 ID**：每个 section/block 都有 ID，为后续"自然语言定点修改"提供锚点（路线图 Phase 3）
+- 🔄 **自然语言持续修改**：改的是检查点 plan 而非 HTML——`revise.py` 一键完成校验→渲染→质检→快照→节点级 diff 历史；渲染失败自动保留上一版，支持 `log` 查历史、`rollback` 一键回滚
 
 ## 快速开始
 
@@ -63,8 +63,8 @@ text（Markdown）/ heading / list / quote / callout / code / image（自动 bas
 |---|---|---|
 | Phase 1 | 报告生成 MVP（本仓库当前范围） | ✅ 可用 |
 | Phase 2 | 更多主题与布局、架构/流程图（diagram 块）、风格预览、视觉检查 | ✅ 可用 |
-| Phase 3 | 自然语言持续修改（改检查点重渲染 + 修改历史） | 规划（下一步） |
-| Phase 4 | 幻灯片模式、多格式输入（DOCX/PDF/CSV）、报告↔幻灯片转换 | 规划 |
+| Phase 3 | 持续修改闭环（节点 diff / 快照 / 历史 / 回滚 / 失败保护） | ✅ 可用 |
+| Phase 4 | 幻灯片模式、多格式输入（DOCX/PDF/CSV）、报告↔幻灯片转换 | 规划（下一步） |
 
 **未实现的功能不在本 README 宣称范围内**（例如幻灯片/演示文稿模式尚未支持）。
 
@@ -76,7 +76,7 @@ text（Markdown）/ heading / list / quote / callout / code / image（自动 bas
 ├── schemas/report.schema.json  # 中间格式 Schema（白名单 + ID 规范）
 ├── visual_report/              # Python Renderer
 ├── assets/                     # base.css（token 消费）+ themes/（token 定义）
-├── scripts/                    # validate.py / static_check.py 质检门禁
+├── scripts/                    # validate / static_check / visual_check 质检 + preview / revise
 ├── examples/demo-report/       # 完整示例（含产物与质检报告）
 └── tests/                      # pytest（Schema 用例集 + golden-file 渲染基准）
 ```
@@ -85,7 +85,7 @@ text（Markdown）/ heading / list / quote / callout / code / image（自动 bas
 
 ```bash
 python -m venv .venv && .venv/bin/pip install -e ".[dev]"
-.venv/bin/pytest                       # 19 个测试
+.venv/bin/pytest                       # 31 个测试
 UPDATE_GOLDEN=1 .venv/bin/pytest       # 渲染行为有意变更时更新 golden 基准
 ```
 
