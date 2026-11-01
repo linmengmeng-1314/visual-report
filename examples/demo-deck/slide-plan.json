@@ -54,6 +54,7 @@
           "id": "deck-arch",
           "type": "diagram",
           "diagramType": "architecture",
+          "animated": true,
           "nodes": [
             { "id": "d-app", "label": "App/热线", "at": [0, 0], "kind": "client" },
             { "id": "d-gw", "label": "接入网关", "at": [1, 0], "kind": "service" },

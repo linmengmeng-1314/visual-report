@@ -174,7 +174,7 @@ def _r_columns(blk, _):
 def _r_diagram(blk, _):
     svg = render_diagram(
         blk["nodes"], blk.get("edges", []), blk.get("caption", ""),
-        blk.get("direction", "lr"),
+        blk.get("direction", "lr"), blk.get("animated", False),
     )
     caption = (
         f'<figcaption class="vr-figure-caption">{_esc(blk["caption"])}</figcaption>'

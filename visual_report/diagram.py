@@ -71,7 +71,7 @@ def _trim_to_box(x1: float, y1: float, x2: float, y2: float) -> tuple:
 
 
 def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
-                   direction: str = "lr") -> str:
+                   direction: str = "lr", animated: bool = False) -> str:
     max_col = max(n["at"][0] for n in nodes)
     max_row = max(n["at"][1] for n in nodes)
     W = PAD * 2 + (max_col + 1) * CW
@@ -91,7 +91,7 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
 
     # ---- 边（线在节点下层） ----
     labels_svg = []  # 标签统一在节点之后绘制，保证不被节点盒遮挡
-    for e in edges:
+    for e_idx, e in enumerate(edges):
         x1, y1 = centers[e["from"]]
         x2, y2 = centers[e["to"]]
         sx, sy, ex, ey = _trim_to_box(x1, y1, x2, y2)
@@ -100,6 +100,13 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
             f'stroke="var(--text-3)" stroke-width="1.5" marker-end="url(#vr-arrow)" '
             f'data-edge-from="{_esc(e["from"])}" data-edge-to="{_esc(e["to"])}"/>'
         )
+        if animated:
+            # 流光覆盖线：CSS dashoffset 动画沿箭头方向流动（借鉴 archify comet，
+            # 纯 CSS；打印与 prefers-reduced-motion 下自动隐藏）
+            parts.append(
+                f'<line class="vr-edge-flow" x1="{sx:.1f}" y1="{sy:.1f}" x2="{ex:.1f}" y2="{ey:.1f}" '
+                f'style="animation-delay:{e_idx * 0.35:.2f}s"/>'
+            )
         if e.get("label"):
             mx, my = (sx + ex) / 2, (sy + ey) / 2
             if abs(ex - sx) < 1:      # 垂直边：标签放线右侧

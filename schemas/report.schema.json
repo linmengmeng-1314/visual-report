@@ -228,6 +228,7 @@
           "type": { "const": "diagram" },
           "diagramType": { "enum": ["flow", "architecture"], "description": "语义提示，渲染引擎相同" },
           "direction": { "enum": ["lr", "tb"], "default": "lr" },
+          "animated": { "type": "boolean", "default": false, "description": "边流光动画（演示场景用；打印与 prefers-reduced-motion 自动退化为静态）" },
           "caption": { "type": "string" },
           "nodes": {
             "type": "array",

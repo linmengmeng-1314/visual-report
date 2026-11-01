@@ -70,3 +70,12 @@ def test_validate_diagram_duplicate_node_id():
 
 def test_validate_diagram_ok():
     assert validate_report(_plan_with_diagram(NODES, EDGES)) == []
+
+
+def test_render_diagram_animated_flow():
+    """animated=true 时输出流光覆盖线，且带错峰延迟；默认不输出。"""
+    static_svg = render_diagram(NODES, EDGES)
+    assert "vr-edge-flow" not in static_svg
+    animated_svg = render_diagram(NODES, EDGES, animated=True)
+    assert animated_svg.count("vr-edge-flow") == len(EDGES)
+    assert "animation-delay" in animated_svg

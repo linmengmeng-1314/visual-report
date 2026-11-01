@@ -95,6 +95,7 @@ src 只允许本地路径或 data: URI，**禁止 http(s)**。
 ```
 - `nodes[]`：`id`（小写-连字符）、`label`（支持 `\n` 换行，超 9 字自动换行）、`at: [列, 行]`（从 0 起，一格一节点）、`kind`（可选：client/service/storage/queue/external，决定边框色与线型）
 - `edges[]`：`{"from": "节点id", "to": "节点id", "label": "≤20字，如 62%"}`；主流程从左到右，跨行连线走斜线
+- `"animated": true`：开启边流光动画（宣讲/deck 场景推荐；打印与 prefers-reduced-motion 自动退化为静态）
 - 校验规则：节点 ID 唯一、同格冲突、边引用必须存在——都会被 validate.py 拦截
 
 布局心法：列 = 处理阶段（入口→网关→逻辑→存储），行 = 同阶段的并列组件；边标签写比例/协议等事实。
