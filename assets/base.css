@@ -1,0 +1,380 @@
+/* ==========================================================================
+   visual-report base.css — 消费设计 token 的唯一基础样式（ADR-013）
+   主题 = 纯 token 覆盖文件（assets/themes/*.css），本文件不写死任何颜色/字体。
+   ========================================================================== */
+
+/* ---- token 默认值（minimal 主题兜底；正式主题文件会整体覆盖） ---- */
+:root {
+  /* 颜色 */
+  --bg: #ffffff;
+  --surface: #f7f7f8;
+  --surface-2: #eeeeF0;
+  --text-1: #1a1a1e;
+  --text-2: #4a4a52;
+  --text-3: #8a8a94;
+  --accent: #2563eb;
+  --accent-ink: #ffffff;      /* accent 之上的文字色，主题必须保证 WCAG AA */
+  --accent-soft: rgba(37, 99, 235, 0.08);
+  --border: #e4e4e8;
+  --chart-1: var(--accent);
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #8b5cf6;
+  --chart-5: #ef4444;
+  --chart-6: #06b6d4;
+
+  /* 字体（ADR-006：CJK 系统字体栈，不内嵌） */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "PingFang SC", "Microsoft YaHei", monospace;
+  --font-heading: var(--font-sans);
+
+  /* 字号（长文档阅读尺度） */
+  --text-scale-hero: clamp(2.2rem, 5vw, 3.4rem);
+  --text-scale-h1: clamp(1.7rem, 3.5vw, 2.4rem);
+  --text-scale-h2: clamp(1.3rem, 2.5vw, 1.7rem);
+  --text-scale-h3: 1.15rem;
+  --text-scale-body: 1rem;
+  --text-scale-small: 0.875rem;
+
+  /* 间距 / 形状 */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+  --space-6: 4rem;
+  --radius: 10px;
+  --radius-s: 6px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --content-width: 860px;
+  --content-width-wide: 1100px;
+}
+
+/* ---- 全局 ---- */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-scale-body);
+  line-height: 1.75;
+  color: var(--text-1);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- 顶部导航条 + 目录 ---- */
+.vr-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.vr-topbar .vr-title {
+  font-weight: 600;
+  font-size: var(--text-scale-small);
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50vw;
+}
+.vr-toc {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.vr-toc::-webkit-scrollbar { display: none; }
+.vr-toc a {
+  font-size: var(--text-scale-small);
+  color: var(--text-3);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-s);
+}
+.vr-toc a:hover { color: var(--accent); background: var(--accent-soft); }
+
+/* ---- 章节 ---- */
+.vr-section { padding: var(--space-6) var(--space-4); }
+.vr-section--alt { background: var(--surface); }
+.vr-section-inner { max-width: var(--content-width); margin: 0 auto; }
+.vr-section-inner--wide { max-width: var(--content-width-wide); }
+
+.vr-section-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-scale-h1);
+  line-height: 1.25;
+  margin: 0 0 var(--space-2);
+  letter-spacing: -0.01em;
+}
+.vr-section-subtitle {
+  font-size: var(--text-scale-h3);
+  color: var(--text-3);
+  margin: 0 0 var(--space-5);
+  font-weight: 400;
+}
+.vr-section-kicker {
+  display: inline-block;
+  font-size: var(--text-scale-small);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-2);
+}
+
+/* ---- Hero 布局 ---- */
+.vr-hero {
+  padding: calc(var(--space-6) * 1.6) var(--space-4);
+  text-align: center;
+  background: linear-gradient(160deg, var(--accent-soft), transparent 55%);
+  border-bottom: 1px solid var(--border);
+}
+.vr-hero-inner { max-width: var(--content-width); margin: 0 auto; }
+.vr-hero h1 {
+  font-family: var(--font-heading);
+  font-size: var(--text-scale-hero);
+  line-height: 1.15;
+  margin: 0 0 var(--space-3);
+  letter-spacing: -0.02em;
+}
+.vr-hero p { color: var(--text-2); font-size: var(--text-scale-h3); margin: 0 0 var(--space-4); }
+.vr-hero-meta {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  color: var(--text-3);
+  font-size: var(--text-scale-small);
+}
+
+/* ---- 块级元素通用 ---- */
+.vr-block { margin: var(--space-4) 0; }
+.vr-block > :first-child { margin-top: 0; }
+.vr-block > :last-child { margin-bottom: 0; }
+
+/* Markdown 正文 */
+.vr-prose h1, .vr-prose h2, .vr-prose h3, .vr-prose h4 {
+  font-family: var(--font-heading);
+  line-height: 1.3;
+  margin: var(--space-5) 0 var(--space-2);
+}
+.vr-prose h1 { font-size: var(--text-scale-h1); }
+.vr-prose h2 { font-size: var(--text-scale-h2); }
+.vr-prose h3 { font-size: var(--text-scale-h3); }
+.vr-prose p { margin: var(--space-3) 0; }
+.vr-prose a { color: var(--accent); }
+.vr-prose ul, .vr-prose ol { padding-left: 1.4em; }
+.vr-prose li { margin: var(--space-1) 0; }
+.vr-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--surface-2);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+.vr-prose pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  overflow-x: auto;
+}
+.vr-prose pre code { background: none; padding: 0; }
+.vr-prose blockquote {
+  margin: var(--space-4) 0;
+  padding: var(--space-1) var(--space-4);
+  border-left: 3px solid var(--accent);
+  color: var(--text-2);
+}
+.vr-prose img { max-width: 100%; border-radius: var(--radius); }
+.vr-prose table { width: 100%; border-collapse: collapse; font-size: var(--text-scale-small); }
+.vr-prose th, .vr-prose td {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+.vr-prose th { color: var(--text-3); font-weight: 600; border-bottom: 2px solid var(--border); }
+.vr-prose hr { border: none; border-top: 1px solid var(--border); margin: var(--space-5) 0; }
+
+/* ---- 布局：双栏 ---- */
+.vr-cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+@media (max-width: 720px) { .vr-cols { grid-template-columns: 1fr; } }
+
+/* ---- 卡片 ---- */
+.vr-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+.vr-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+}
+.vr-card h4 { margin: 0 0 var(--space-2); font-size: var(--text-scale-h3); }
+.vr-card .vr-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem; height: 2.2rem;
+  border-radius: var(--radius-s);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+.vr-card p { margin: 0; color: var(--text-2); font-size: var(--text-scale-small); }
+
+/* ---- KPI ---- */
+.vr-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+.vr-kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+}
+.vr-kpi .vr-kpi-value {
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--accent);
+}
+.vr-kpi .vr-kpi-label { color: var(--text-2); font-size: var(--text-scale-small); margin-top: var(--space-1); }
+.vr-kpi .vr-kpi-delta { font-size: var(--text-scale-small); color: var(--text-3); margin-top: var(--space-1); }
+.vr-kpi .vr-kpi-delta--up { color: var(--chart-2); }
+.vr-kpi .vr-kpi-delta--down { color: var(--chart-5); }
+
+/* ---- 图表容器（构建期 SVG，ADR-005） ---- */
+.vr-chart { margin: var(--space-4) 0; }
+.vr-chart svg { width: 100%; height: auto; display: block; }
+.vr-chart-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-4);
+  padding: 0;
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-scale-small);
+  color: var(--text-2);
+}
+.vr-chart-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.vr-chart-legend span { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.vr-chart figcaption, .vr-figure-caption {
+  text-align: center;
+  color: var(--text-3);
+  font-size: var(--text-scale-small);
+  margin-top: var(--space-2);
+}
+
+/* ---- 引用 / 结论 ---- */
+.vr-quote {
+  border-left: 3px solid var(--accent);
+  padding: var(--space-2) var(--space-4);
+  margin: var(--space-4) 0;
+  font-size: var(--text-scale-h3);
+  color: var(--text-2);
+}
+.vr-quote cite { display: block; font-size: var(--text-scale-small); color: var(--text-3); font-style: normal; margin-top: var(--space-2); }
+
+/* ---- Callout ---- */
+.vr-callout {
+  display: flex;
+  gap: var(--space-3);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  margin: var(--space-4) 0;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+}
+.vr-callout .vr-callout-tag {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: var(--text-scale-small);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-top: 0.15em;
+}
+.vr-callout p { margin: 0; }
+
+/* ---- 图片 ---- */
+.vr-figure { margin: var(--space-4) 0; text-align: center; }
+.vr-figure img { max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); }
+
+/* ---- 时间线（CSS 实现） ---- */
+.vr-timeline { list-style: none; margin: var(--space-4) 0; padding: 0; }
+.vr-timeline li {
+  position: relative;
+  padding: 0 0 var(--space-4) var(--space-5);
+  border-left: 2px solid var(--border);
+  margin-left: var(--space-2);
+}
+.vr-timeline li:last-child { padding-bottom: 0; }
+.vr-timeline li::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 0.4em;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+}
+.vr-timeline .vr-tl-time { font-size: var(--text-scale-small); color: var(--text-3); font-weight: 600; }
+.vr-timeline .vr-tl-title { font-weight: 600; margin: var(--space-1) 0; }
+.vr-timeline .vr-tl-desc { color: var(--text-2); font-size: var(--text-scale-small); margin: 0; }
+
+/* ---- 页脚 ---- */
+.vr-footer {
+  border-top: 1px solid var(--border);
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  color: var(--text-3);
+  font-size: var(--text-scale-small);
+}
+
+/* ---- 返回顶部 ---- */
+.vr-backtop {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  width: 2.4rem; height: 2.4rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  text-decoration: none;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow);
+  z-index: 99;
+}
+.vr-backtop.vr-visible { display: flex; }
+
+/* ---- 打印（PDF 导出，ADR 来自 V1 §7.3） ---- */
+@media print {
+  .vr-topbar, .vr-backtop { display: none !important; }
+  .vr-section { padding: var(--space-4) 0; page-break-inside: avoid; }
+  body { font-size: 11pt; }
+  a { color: inherit; text-decoration: none; }
+}

@@ -1,0 +1,297 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://visual-report.dev/schemas/report.schema.json",
+  "title": "Visual Report Plan",
+  "description": "visual-report 的视觉结构层检查点（report-plan.json）。内容块一律使用 Markdown 字符串（ADR-008）；ID 全文档唯一（ADR-007）。",
+  "type": "object",
+  "required": ["meta", "sections"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "meta": {
+      "type": "object",
+      "required": ["title", "theme"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "subtitle": { "type": "string" },
+        "author": { "type": "string" },
+        "date": { "type": "string" },
+        "theme": { "enum": ["minimal", "corporate", "tech"] },
+        "lang": { "enum": ["zh-CN", "en"], "default": "zh-CN" },
+        "schemaVersion": { "const": "0.1" },
+        "footer": { "type": "string" }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/section" }
+    }
+  },
+  "definitions": {
+    "sectionId": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 64 },
+    "blockId": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 64 },
+    "section": {
+      "type": "object",
+      "required": ["id", "layout", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/definitions/sectionId" },
+        "layout": {
+          "enum": ["hero", "prose", "two-col", "cards", "kpi", "chart-focus", "timeline", "conclusion"]
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "subtitle": { "type": "string" },
+        "kicker": { "type": "string" },
+        "alt": { "type": "boolean", "description": "使用交替背景色", "default": false },
+        "wide": { "type": "boolean", "description": "使用宽内容区", "default": false },
+        "blocks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/block" }
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "required": ["type"],
+      "oneOf": [
+        { "$ref": "#/definitions/blocks/text" },
+        { "$ref": "#/definitions/blocks/heading" },
+        { "$ref": "#/definitions/blocks/list" },
+        { "$ref": "#/definitions/blocks/quote" },
+        { "$ref": "#/definitions/blocks/callout" },
+        { "$ref": "#/definitions/blocks/code" },
+        { "$ref": "#/definitions/blocks/image" },
+        { "$ref": "#/definitions/blocks/kpi" },
+        { "$ref": "#/definitions/blocks/chart" },
+        { "$ref": "#/definitions/blocks/table" },
+        { "$ref": "#/definitions/blocks/timeline" },
+        { "$ref": "#/definitions/blocks/cards" },
+        { "$ref": "#/definitions/blocks/columns" }
+      ]
+    },
+    "blocks": {
+      "text": {
+        "type": "object",
+        "required": ["type", "content"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "text" },
+          "content": { "type": "string", "description": "Markdown 字符串，由 Renderer 统一转 HTML" }
+        },
+        "additionalProperties": false
+      },
+      "heading": {
+        "type": "object",
+        "required": ["type", "content"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "heading" },
+          "level": { "enum": [2, 3], "default": 2 },
+          "content": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      },
+      "list": {
+        "type": "object",
+        "required": ["type", "items"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "list" },
+          "ordered": { "type": "boolean", "default": false },
+          "items": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      },
+      "quote": {
+        "type": "object",
+        "required": ["type", "content"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "quote" },
+          "content": { "type": "string" },
+          "cite": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "callout": {
+        "type": "object",
+        "required": ["type", "content"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "callout" },
+          "tag": { "type": "string", "default": "要点" },
+          "content": { "type": "string", "description": "Markdown 字符串" }
+        },
+        "additionalProperties": false
+      },
+      "code": {
+        "type": "object",
+        "required": ["type", "content"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "code" },
+          "language": { "type": "string", "default": "" },
+          "caption": { "type": "string" },
+          "content": { "type": "string", "description": "纯文本代码，Renderer 负责转义" }
+        },
+        "additionalProperties": false
+      },
+      "image": {
+        "type": "object",
+        "required": ["type", "src"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "image" },
+          "src": { "type": "string", "description": "本地路径（构建期 base64 内嵌）或 data: URI；禁止 http(s)://" },
+          "alt": { "type": "string" },
+          "caption": { "type": "string" },
+          "maxWidth": { "type": "string", "default": "100%" }
+        },
+        "additionalProperties": false
+      },
+      "kpi": {
+        "type": "object",
+        "required": ["type", "items"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "kpi" },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 6,
+            "items": {
+              "type": "object",
+              "required": ["label", "value"],
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string" },
+                "value": { "type": "string" },
+                "delta": { "type": "string" },
+                "trend": { "enum": ["up", "down", "flat"] }
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "chart": {
+        "type": "object",
+        "required": ["type", "chartType", "data"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "chart" },
+          "chartType": { "enum": ["bar", "line", "donut"] },
+          "caption": { "type": "string" },
+          "dataNote": { "type": "string", "description": "数据来源或示意数据标注（ADR-009）" },
+          "unit": { "type": "string" },
+          "data": {
+            "type": "object",
+            "required": ["labels"],
+            "additionalProperties": false,
+            "properties": {
+              "labels": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+              "values": {
+                "type": "array",
+                "minItems": 1,
+                "description": "donut/单序列用一维数组；bar/line 多序列用 series",
+                "items": { "type": ["number", "null"], "description": "null 表示缺失值（ADR-009：断线呈现，不得编造）" }
+              },
+              "series": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "values"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": { "type": "string" },
+                    "values": { "type": "array", "items": { "type": ["number", "null"] } }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "table": {
+        "type": "object",
+        "required": ["type", "columns", "rows"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "table" },
+          "columns": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "rows": {
+            "type": "array",
+            "items": { "type": "array", "items": { "type": ["string", "number", "null"] } }
+          },
+          "caption": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "timeline": {
+        "type": "object",
+        "required": ["type", "items"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "timeline" },
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["time", "title"],
+              "additionalProperties": false,
+              "properties": {
+                "time": { "type": "string" },
+                "title": { "type": "string" },
+                "desc": { "type": "string" }
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "cards": {
+        "type": "object",
+        "required": ["type", "items"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "cards" },
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 6,
+            "items": {
+              "type": "object",
+              "required": ["title", "content"],
+              "additionalProperties": false,
+              "properties": {
+                "icon": { "type": "string", "description": "单字符或短 emoji" },
+                "title": { "type": "string" },
+                "content": { "type": "string", "description": "Markdown 字符串" }
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "columns": {
+        "type": "object",
+        "required": ["type", "cols"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "columns" },
+          "cols": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": { "type": "string", "description": "每栏 Markdown 字符串" }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

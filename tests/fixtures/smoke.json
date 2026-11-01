@@ -1,0 +1,121 @@
+{
+  "$schema": "https://visual-report.dev/schemas/report.schema.json",
+  "meta": {
+    "title": "冒烟测试报告",
+    "subtitle": "验证渲染链路",
+    "author": "visual-report",
+    "date": "2026-11-01",
+    "theme": "minimal",
+    "lang": "zh-CN",
+    "schemaVersion": "0.1"
+  },
+  "sections": [
+    {
+      "id": "hero",
+      "layout": "hero",
+      "title": "冒烟测试报告",
+      "subtitle": "验证 Markdown → Schema → Renderer → 单文件 HTML 全链路"
+    },
+    {
+      "id": "overview",
+      "layout": "prose",
+      "kicker": "背景",
+      "title": "项目概述",
+      "subtitle": "一段引言",
+      "blocks": [
+        {
+          "id": "overview-intro",
+          "type": "text",
+          "content": "这是 **Markdown** 内容，支持 `代码`、[链接](#) 与列表：\n\n- 第一项\n- 第二项"
+        },
+        {
+          "id": "overview-kpis",
+          "type": "kpi",
+          "items": [
+            { "label": "核心指标", "value": "99.9%", "delta": "同比 +0.3%", "trend": "up" },
+            { "label": "服务节点", "value": "12", "delta": "", "trend": "flat" },
+            { "label": "故障时长", "value": "3.2h", "delta": "环比 -1.1h", "trend": "down" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "layout": "chart-focus",
+      "alt": true,
+      "title": "数据分析",
+      "blocks": [
+        {
+          "id": "data-bar",
+          "type": "chart",
+          "chartType": "bar",
+          "caption": "季度请求量（万次）",
+          "unit": "",
+          "data": {
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [120, 158, 141, 190]
+          }
+        },
+        {
+          "id": "data-line",
+          "type": "chart",
+          "chartType": "line",
+          "caption": "响应时间趋势（ms，7 月数据缺失）",
+          "data": {
+            "labels": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月"],
+            "series": [
+              { "name": "P50", "values": [42, 40, 38, 41, 39, 37, null, 35] },
+              { "name": "P99", "values": [180, 170, 165, 172, 160, 155, null, 148] }
+            ]
+          }
+        },
+        {
+          "id": "data-donut",
+          "type": "chart",
+          "chartType": "donut",
+          "caption": "流量来源",
+          "data": {
+            "labels": ["直接访问", "搜索引擎", "外部链接"],
+            "values": [52, 31, 17]
+          }
+        }
+      ]
+    },
+    {
+      "id": "roadmap",
+      "layout": "timeline",
+      "title": "实施计划",
+      "blocks": [
+        {
+          "id": "roadmap-timeline",
+          "type": "timeline",
+          "items": [
+            { "time": "2026 Q4", "title": "MVP 上线", "desc": "报告生成链路打通" },
+            { "time": "2027 Q1", "title": "视觉增强", "desc": "主题与布局扩展" },
+            { "time": "2027 Q2", "title": "持续修改", "desc": "自然语言修改闭环" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "layout": "conclusion",
+      "alt": true,
+      "title": "结论",
+      "blocks": [
+        {
+          "id": "conclusion-callout",
+          "type": "callout",
+          "tag": "核心结论",
+          "content": "链路可用：**Schema 校验 → 确定性渲染 → 单文件离线输出**。"
+        },
+        {
+          "id": "conclusion-table",
+          "type": "table",
+          "columns": ["模块", "状态"],
+          "rows": [["Renderer", "已实现"], ["质检", "已实现"], ["幻灯片模式", "Phase 4"]]
+        }
+      ]
+    }
+  ]
+}

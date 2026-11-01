@@ -1,0 +1,22 @@
+/* 主题：Tech — 科技深色（技术宣讲/架构介绍） */
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-2: #21262d;
+  --text-1: #e6edf3;
+  --text-2: #b0b8c4;
+  --text-3: #7d8590;
+  --accent: #58a6ff;
+  --accent-ink: #0d1117;
+  --accent-soft: rgba(88, 166, 255, 0.10);
+  --border: #30363d;
+  --chart-1: #58a6ff;
+  --chart-2: #3fb950;
+  --chart-3: #d29922;
+  --chart-4: #bc8cff;
+  --chart-5: #f85149;
+  --chart-6: #39c5cf;
+  --radius: 10px;
+  --radius-s: 6px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,22 @@
+/* 主题：Corporate — 企业商务（正式项目汇报） */
+:root {
+  --bg: #ffffff;
+  --surface: #f4f6f9;
+  --surface-2: #e8ecf2;
+  --text-1: #17233b;
+  --text-2: #3d4a63;
+  --text-3: #74809a;
+  --accent: #1e4e8c;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(30, 78, 140, 0.07);
+  --border: #dde3ec;
+  --chart-1: #1e4e8c;
+  --chart-2: #2e9e8f;
+  --chart-3: #d69e2e;
+  --chart-4: #6b5fa8;
+  --chart-5: #c0504d;
+  --chart-6: #3191c9;
+  --radius: 8px;
+  --radius-s: 5px;
+  --shadow: 0 1px 3px rgba(23, 35, 59, 0.08), 0 4px 12px rgba(23, 35, 59, 0.06);
+}

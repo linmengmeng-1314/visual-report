@@ -1,0 +1,22 @@
+/* 主题：Minimal — 极简现代（默认兜底主题，技术方案/通用报告） */
+:root {
+  --bg: #ffffff;
+  --surface: #f7f7f8;
+  --surface-2: #eeeef0;
+  --text-1: #1a1a1e;
+  --text-2: #4a4a52;
+  --text-3: #8a8a94;
+  --accent: #2563eb;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(37, 99, 235, 0.08);
+  --border: #e4e4e8;
+  --chart-1: #2563eb;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #8b5cf6;
+  --chart-5: #ef4444;
+  --chart-6: #06b6d4;
+  --radius: 10px;
+  --radius-s: 6px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.05);
+}

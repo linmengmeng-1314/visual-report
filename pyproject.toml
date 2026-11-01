@@ -1,0 +1,29 @@
+[project]
+name = "visual-report"
+version = "0.1.0"
+description = "AI-driven visual report generator: structured plans → deterministic rendering → single-file offline HTML"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "markdown-it-py>=3.0",
+    "jsonschema>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["visual_report"]
+
+[tool.setuptools.package-data]
+visual_report = ["../assets/base.css", "../assets/themes/*.css", "../templates/*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
