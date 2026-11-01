@@ -1,0 +1,23 @@
+# 构建过程文档（本地留痕，不入仓库）
+meta/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 项目运行产物（V3 ADR：交付物不进版本库）
+output/
+.visual-report/
+
+# 测试与工具缓存
+.pytest_cache/
+node_modules/
+
+# 编辑器
+.idea/
+.vscode/
