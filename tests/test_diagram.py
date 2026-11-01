@@ -18,9 +18,10 @@ EDGES = [
 def test_render_diagram_basic():
     svg = render_diagram(NODES, EDGES)
     assert svg.startswith("<svg") and svg.endswith("</svg>")
-    assert svg.count("<rect") == 3          # 3 个节点
+    assert svg.count('data-node-id') == 3   # 3 个节点（可聚焦）
     assert svg.count("marker-end") == 2     # 2 条箭头边
     assert "HTTPS" in svg                   # 边标签
+    assert 'rx="7"' in svg                  # 标签胶囊底衬（借鉴 archify）
 
 
 def test_render_diagram_escapes_labels():

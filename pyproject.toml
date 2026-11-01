@@ -1,6 +1,6 @@
 [project]
 name = "visual-report"
-version = "0.1.0"
+version = "0.2.0"
 description = "AI-driven visual report generator: structured plans → deterministic rendering → single-file offline HTML"
 readme = "README.md"
 requires-python = ">=3.9"

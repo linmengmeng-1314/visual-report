@@ -2,6 +2,8 @@
 
 **AI 驱动的可持续编辑型图文报告与演示文稿生成工具**：把 Markdown 和项目素材变成精美的**单文件离线 HTML**——图文报告 + 幻灯片双模式，含图表、架构图、KPI、时间线，双击即可打开，断网可用，可直接邮件发送或打印成 PDF。
 
+[English README](README.en.md)
+
 > An AI-native visual content engine: structured plans → deterministic rendering → single-file offline HTML reports & slide decks.
 
 ![hero](docs/screenshots/hero.png)
@@ -96,6 +98,25 @@ python -m venv .venv && .venv/bin/pip install -e ".[dev]"
 .venv/bin/pytest                       # 38 个测试
 UPDATE_GOLDEN=1 .venv/bin/pytest       # 渲染行为有意变更时更新 golden 基准
 ```
+
+## 致敬优秀开源项目
+
+本项目站在许多优秀开源作品的肩膀上——**只学习设计思想，未复制任何代码**（各项目许可证均已在采用前核对）：
+
+| 项目 | 我们学到的 |
+|---|---|
+| [frontend-slides](https://github.com/zarazhangrui/frontend-slides)（MIT） | Show-Don't-Tell 风格预览与预览真实性规则 |
+| [presentation-forge](https://github.com/thmsgo18/presentation-forge)（MIT） | 无依赖质检闭环与 contact sheet 思想 |
+| [knowledge-cat-ppt-skill](https://github.com/gnipbao/knowledge-cat-ppt-skill)（MIT） | deck-plan JSON Schema + 弱标题黑名单 |
+| [Report-Skill](https://github.com/TheoRata/Report-Skill)（MIT） | "Agent 写 Markdown、机器渲染"的成本模型 |
+| [raghuram-skills](https://github.com/raghuramsirigiri/raghuram-skills)（MIT） | 数据诚实规则（缺值断线、示意数据标注）与 finalize 交付门禁 |
+| [onepage-skill](https://github.com/wjhuang88/onepage-skill)（MIT） | 报告模式的决策优先级与语义色纪律 |
+| [html-ppt-skill](https://github.com/lewislulu/html-ppt-skill)（MIT） | Token 化主题层与"版式即完整 demo 页" |
+| [guizang-ppt-skill](https://github.com/op7418/guizang-ppt-skill) | 版式白名单与 px 级渲染测量思想 |
+| [vislide](https://github.com/shreyas-s-rao/vislide)（MIT） | 固定画布缩放自适应 |
+| [archify](https://github.com/tt-a1i/archify)（Apache-2.0） | 架构图语义色 color-mix、边标签胶囊底衬、点击聚焦交互 |
+| [visual-explainer](https://github.com/nicobailon/visual-explainer) | "小改源文件重渲染，禁止整页重写"的修订纪律 |
+| [awesome-html-slide-skills](https://github.com/ToseaAI/awesome-html-slide-skills)（CC BY 4.0） | 竞品地图与生态洞察 |
 
 ## License
 

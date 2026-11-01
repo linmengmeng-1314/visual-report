@@ -266,6 +266,9 @@ body {
 /* ---- 图表容器（构建期 SVG，ADR-005） ---- */
 .vr-chart { margin: var(--space-4) 0; }
 .vr-chart svg { width: 100%; height: auto; display: block; }
+/* 架构图聚焦（点击节点，非相邻元素压暗；借鉴 archify） */
+.vr-chart [data-node-id] { cursor: pointer; transition: opacity .15s; }
+.vr-diagram-dim { opacity: 0.15; }
 .vr-chart-legend {
   list-style: none;
   display: flex;

@@ -12,6 +12,7 @@ BOX_W, BOX_H = 136, 62    # 节点盒尺寸
 PAD = 24
 
 # kind → 视觉样式（描边色 + 线型），未声明的 kind 用默认样式
+# 节点填充用 color-mix 从描边色派生淡色调（借鉴 archify 的 token 体系，深浅主题通吃）
 KIND_STYLE = {
     "client":   ("var(--chart-6)", "solid"),
     "service":  ("var(--chart-1)", "solid"),
@@ -20,6 +21,13 @@ KIND_STYLE = {
     "external": ("var(--text-2)",  "dotted"),
 }
 DEFAULT_STYLE = ("var(--border)", "solid")
+
+FS_LABEL = 12  # 边标签字号
+
+
+def _text_width(s: str, fs: int = FS_LABEL) -> float:
+    """CJK 每字约 1em，ASCII 约 0.62em。"""
+    return sum(fs if ord(c) > 0x2e7f else fs * 0.62 for c in s)
 
 
 def _esc(s) -> str:
@@ -89,21 +97,29 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
         sx, sy, ex, ey = _trim_to_box(x1, y1, x2, y2)
         parts.append(
             f'<line x1="{sx:.1f}" y1="{sy:.1f}" x2="{ex:.1f}" y2="{ey:.1f}" '
-            f'stroke="var(--text-3)" stroke-width="1.5" marker-end="url(#vr-arrow)"/>'
+            f'stroke="var(--text-3)" stroke-width="1.5" marker-end="url(#vr-arrow)" '
+            f'data-edge-from="{_esc(e["from"])}" data-edge-to="{_esc(e["to"])}"/>'
         )
         if e.get("label"):
             mx, my = (sx + ex) / 2, (sy + ey) / 2
             if abs(ex - sx) < 1:      # 垂直边：标签放线右侧
-                lx, ly, anchor = mx + 7, my + 3, "start"
+                lx, ly, anchor = mx + 8, my + 4, "start"
             elif abs(ey - sy) < 1:    # 水平边：标签在线上方
-                lx, ly, anchor = mx, my - 6, "middle"
+                lx, ly, anchor = mx, my - 7, "middle"
             else:                     # 斜边：中点上方
-                lx, ly, anchor = mx, my - 6, "middle"
-            # 描边晕底避免与连线/邻线串扰
+                lx, ly, anchor = mx, my - 7, "middle"
+            # 胶囊底衬（借鉴 archify）：比文字描边晕更干净，且隔开交叉线
+            tw = _text_width(e["label"])
+            if anchor == "start":
+                rx_ = lx - 5
+            else:
+                rx_ = lx - tw / 2 - 5
             labels_svg.append(
-                f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" font-size="12" font-weight="600" '
-                f'fill="var(--text-2)" stroke="var(--bg)" stroke-width="3" '
-                f'paint-order="stroke">{_esc(e["label"])}</text>'
+                f'<rect x="{rx_:.1f}" y="{ly - FS_LABEL:.1f}" width="{tw + 10:.1f}" '
+                f'height="{FS_LABEL + 7:.1f}" rx="7" fill="var(--bg)" stroke="var(--border)" '
+                f'stroke-width="0.75"/>'
+                f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" font-size="{FS_LABEL}" '
+                f'font-weight="600" fill="var(--text-2)">{_esc(e["label"])}</text>'
             )
 
     # ---- 节点 ----
@@ -113,9 +129,11 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
         color, line = KIND_STYLE.get(n.get("kind", ""), DEFAULT_STYLE)
         dash = ' stroke-dasharray="5,3"' if line == "dashed" else (
             ' stroke-dasharray="2,3"' if line == "dotted" else "")
+        # 填充从描边色派生淡色调（color-mix），深浅主题下均成立（借鉴 archify）
         parts.append(
             f'<rect x="{bx:.1f}" y="{by:.1f}" width="{bw}" height="{bh}" rx="8" '
-            f'fill="var(--surface)" stroke="{color}" stroke-width="1.5"{dash}/>'
+            f'style="fill:color-mix(in srgb, {color} 10%, var(--bg))" '
+            f'stroke="{color}" stroke-width="1.5"{dash} data-node-id="{_esc(n["id"])}"/>'
         )
         lines = _wrap_label(n["label"])
         total_h = 16 * len(lines)
