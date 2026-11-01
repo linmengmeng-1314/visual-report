@@ -1,5 +1,0 @@
-markdown-it-py>=3.0
-jsonschema>=4.0
-
-[dev]
-pytest>=7.0
