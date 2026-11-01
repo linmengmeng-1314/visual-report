@@ -78,7 +78,11 @@ def _render_section(sec: dict, base_dir: Optional[Path], meta: dict) -> str:
 
 
 def render_report(plan: dict, base_dir: Optional[Path] = None) -> str:
-    """校验 + 渲染。校验失败抛 ValidationError（不产出文件）。"""
+    """校验 + 渲染（按结构自动路由报告/幻灯片）。校验失败抛 ValidationError（不产出文件）。"""
+    if "slides" in plan:
+        from .deck import render_deck
+        return render_deck(plan, base_dir)
+
     validate_report_or_raise(plan)
 
     meta = plan["meta"]

@@ -1,0 +1,170 @@
+{
+  "$schema": "https://visual-report.dev/schemas/slide.schema.json",
+  "meta": {
+    "title": "智能客服系统 Q3 汇报",
+    "subtitle": "降本增效初见成效，自动化处理率突破 60%",
+    "author": "客服平台组",
+    "date": "2026-11",
+    "theme": "tech",
+    "lang": "zh-CN",
+    "schemaVersion": "0.1",
+    "footer": "客服平台组 · 15 分钟版"
+  },
+  "slides": [
+    {
+      "id": "cover",
+      "layout": "title",
+      "title": "智能客服系统 Q3 汇报",
+      "subtitle": "降本增效初见成效，自动化处理率突破 60%",
+      "notes": "开场 30 秒：Q2 我们被进线量打爆，Q3 的主题是把机器人用起来。今天讲三件事：做到了什么、怎么做到的、接下来一个季度做什么。"
+    },
+    {
+      "id": "headline-kpis",
+      "layout": "kpi",
+      "kicker": "结果",
+      "title": "四个数字，概括这个季度",
+      "blocks": [
+        {
+          "id": "deck-kpis",
+          "type": "kpi",
+          "items": [
+            { "label": "自动化处理率", "value": "61.4%", "delta": "环比 +9.2pp", "trend": "up" },
+            { "label": "平均响应时长", "value": "38s", "delta": "环比 -12s", "trend": "down", "good": true },
+            { "label": "人工坐席成本", "value": "¥82万", "delta": "环比 -14%", "trend": "down", "good": true },
+            { "label": "用户满意度", "value": "4.6", "delta": "环比 +0.2", "trend": "up" }
+          ]
+        }
+      ],
+      "notes": "重点强调：成本降 14% 的同时满意度是升的——自动化没有牺牲体验。"
+    },
+    {
+      "id": "how",
+      "layout": "section",
+      "kicker": "Part 1",
+      "title": "我们怎么做到的",
+      "subtitle": "分流 · 识别 · 协作，三件事"
+    },
+    {
+      "id": "arch",
+      "layout": "diagram",
+      "kicker": "方案",
+      "title": "在网关后面加了一层分流引擎",
+      "blocks": [
+        {
+          "id": "deck-arch",
+          "type": "diagram",
+          "diagramType": "architecture",
+          "nodes": [
+            { "id": "d-app", "label": "App/热线", "at": [0, 0], "kind": "client" },
+            { "id": "d-gw", "label": "接入网关", "at": [1, 0], "kind": "service" },
+            { "id": "d-router", "label": "分流引擎", "at": [2, 0], "kind": "service" },
+            { "id": "d-bot", "label": "意图机器人", "at": [3, 0], "kind": "service" },
+            { "id": "d-agent", "label": "人机协作台", "at": [3, 1], "kind": "service" },
+            { "id": "d-kb", "label": "知识库", "at": [4, 0], "kind": "storage" }
+          ],
+          "edges": [
+            { "from": "d-app", "to": "d-gw" },
+            { "from": "d-gw", "to": "d-router", "label": "全量" },
+            { "from": "d-router", "to": "d-bot", "label": "62%" },
+            { "from": "d-router", "to": "d-agent", "label": "38%" },
+            { "from": "d-kb", "to": "d-bot", "label": "检索" }
+          ]
+        }
+      ],
+      "notes": "关键点：分流规则按业务线 × 用户分级，共 14 条；机器人与人工共享工单上下文，转接不丢信息。"
+    },
+    {
+      "id": "growth",
+      "layout": "chart",
+      "kicker": "数据",
+      "title": "连续 13 周爬坡，自动化率 42% → 61.4%",
+      "blocks": [
+        {
+          "id": "deck-line",
+          "type": "chart",
+          "chartType": "line",
+          "caption": "周度自动化处理率（%）· W8 监控迁移数据缺失",
+          "dataNote": "来源：客服平台监控看板",
+          "data": {
+            "labels": ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12", "W13"],
+            "values": [42.1, 43.8, 46.2, 48.0, 50.9, 53.1, 55.4, null, 57.2, 58.8, 59.6, 60.5, 61.4]
+          }
+        }
+      ],
+      "notes": "曲线无跳变说明增长是结构性而非活动性的。W8 缺口是监控迁移，没有插值。"
+    },
+    {
+      "id": "cost-vs-exp",
+      "layout": "two-col",
+      "kicker": "数据",
+      "title": "省钱和体验，这次不是二选一",
+      "blocks": [
+        {
+          "id": "deck-columns",
+          "type": "columns",
+          "cols": [
+            "### 成本侧\n\n- 坐席成本 **¥82 万**（Q2 ¥96 万）\n- 单工单成本 **¥3.1 → ¥2.6**\n- 取消高峰外包，省 ¥11 万",
+            "### 体验侧\n\n- 响应时长 **38s**（Q2 50s）\n- 满意度 **4.6**（Q2 4.4）\n- 机器人会话解决率 **74%**"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "voice",
+      "layout": "quote",
+      "kicker": "一线",
+      "title": "他们怎么说",
+      "blocks": [
+        {
+          "id": "deck-quote",
+          "type": "quote",
+          "content": "以前一上午都在重复『已为您加急』，现在机器人把轨迹说清楚了，我只需要处理真正出问题的订单。",
+          "cite": "—— 坐席组长，2026-09 访谈"
+        }
+      ],
+      "notes": "这页停 10 秒让大家读完，比任何数据都有说服力。"
+    },
+    {
+      "id": "risks",
+      "layout": "table",
+      "kicker": "Part 2",
+      "title": "两个没解决的问题",
+      "blocks": [
+        {
+          "id": "deck-risk-table",
+          "type": "table",
+          "columns": ["风险", "等级", "应对", "负责人"],
+          "rows": [
+            ["长尾意图识别率仅 35%", "高", "Q4 few-shot 试点", "算法组"],
+            ["夜间误答率抬升", "中", "账务类夜间转人工留言", "平台组"]
+          ]
+        }
+      ],
+      "notes": "主动讲风险，别等被问。60% 之后是深水区，堆规则已经到头了。"
+    },
+    {
+      "id": "q4",
+      "layout": "bullets",
+      "kicker": "Part 3",
+      "title": "Q4：从 61% 到 70%",
+      "blocks": [
+        {
+          "id": "deck-q4-list",
+          "type": "list",
+          "items": [
+            "**10 月** — 长尾意图 few-shot 试点，目标识别率 55%",
+            "**11 月** — 夜间兜底改造，误答率压回 1.5%",
+            "**12 月** — 自动化会话满意度追平人工（4.6）"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "end",
+      "layout": "statement",
+      "title": "自动化率 61.4%，成本降 14%，满意度不降反升",
+      "subtitle": "Q4 的关键在识别能力升级，而非规则堆叠",
+      "notes": "收尾：一句话结论 + 感谢，控制在 20 秒内。"
+    }
+  ]
+}

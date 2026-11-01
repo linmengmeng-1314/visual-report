@@ -101,8 +101,8 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
                 lx, ly, anchor = mx, my - 6, "middle"
             # 描边晕底避免与连线/邻线串扰
             labels_svg.append(
-                f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" font-size="11" '
-                f'fill="var(--text-3)" stroke="var(--bg)" stroke-width="3" '
+                f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" font-size="12" font-weight="600" '
+                f'fill="var(--text-2)" stroke="var(--bg)" stroke-width="3" '
                 f'paint-order="stroke">{_esc(e["label"])}</text>'
             )
 
@@ -122,7 +122,7 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
         for i, ln in enumerate(lines):
             ty = cy - total_h / 2 + 13 + i * 16
             parts.append(
-                f'<text x="{cx:.1f}" y="{ty:.1f}" text-anchor="middle" font-size="13" '
+                f'<text x="{cx:.1f}" y="{ty:.1f}" text-anchor="middle" font-size="14" '
                 f'fill="var(--text-1)">{_esc(ln)}</text>'
             )
 

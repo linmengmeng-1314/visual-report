@@ -1,6 +1,6 @@
 ---
 name: visual-report
-description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图文报告（含图表、KPI、时间线、目录导航、打印导出）。当用户要求"生成报告 / 项目汇报 / 阶段总结 / 图文文档 / 把 md 转成好看的 HTML"，且素材超过 3 段或 1 个文件时使用。不适用于：单页幻灯片/演示文稿（暂未支持）、只要纯文本摘要、单文件代码修改。
+description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图文报告或幻灯片（含图表、架构图、KPI、时间线；报告带目录导航与打印导出，幻灯片带翻页/全屏/总览/演讲备注）。当用户要求"生成报告 / 项目汇报 / 阶段总结 / 图文文档 / 宣讲 PPT / 幻灯片 / 把 md 转成好看的 HTML"，且素材超过 3 段或 1 个文件时使用。不适用于：可编辑的 .pptx 文件、只要纯文本摘要、单文件代码修改。
 ---
 
 # Visual Report
@@ -61,6 +61,16 @@ description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图�
 | 全部块类型 + report-plan 完整示例 | references/block-reference.md | 组装 plan 时（必读） |
 | 设计规则（信息密度、语义色、图表选型） | references/design-rules.md | 视觉规划时 |
 | 修改已有报告 | 本文件"修改流程"节 | 用户要求改报告时 |
+
+## 幻灯片模式
+
+用户要宣讲/演示时，生成 slide-plan.json（结构与 report-plan 平行，`slides[]` 替代 `sections[]`）：
+
+1. 版式：title / section / bullets / kpi / chart / diagram / quote / two-col / table / statement，一页一个核心主题；
+2. 标题写结论；每页信息密度低于报告（正文 ≤ 5 条要点）；
+3. 每页写 `notes`（演讲备注，按页 ID 存储不串页）；
+4. 校验渲染质检与报告同一套命令（validate.py / render / static_check.py 自动识别 slides）；
+5. **报告转 deck**：`python scripts/to_slides.py report-plan.json -o slide-plan.json` 生成骨架（KPI/图表/架构图直接复用），然后按宣讲时长精炼叙事——15 分钟 ≈ 10 页，禁止把长文直接切片。
 
 ## 修改流程（生成过的报告）
 

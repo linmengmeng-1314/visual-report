@@ -388,6 +388,115 @@ body {
   a { color: inherit; text-decoration: none; }
 }
 
+/* ==========================================================================
+   Deck 模式（幻灯片）：1280×720 固定画布 + 缩放自适应，token 与报告共享
+   ========================================================================== */
+.vr-deck-body { overflow: hidden; }
+/* 舞台容器：裁掉 1280×720 画布的布局溢出，缩放不污染文档宽度 */
+.vr-stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.vr-deck {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  transform-origin: center center;
+  background: var(--bg);
+  margin: 0 auto;
+}
+.vr-slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 56px 84px;
+  background: var(--bg);
+}
+.vr-slide.vr-active { display: flex; }
+.vr-slide.vr-active-in-overview { outline: 3px solid var(--accent); outline-offset: 6px; }
+
+.vr-slide-title, .vr-slide-divider, .vr-slide-statement {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.vr-slide-title h1, .vr-slide-divider h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2.4rem, 4.4vw, 3.6rem);
+  line-height: 1.18;
+  margin: 0 0 var(--space-3);
+  letter-spacing: -0.02em;
+}
+.vr-slide-statement h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  line-height: 1.3;
+  margin: 0 0 var(--space-3);
+}
+.vr-slide-sub { color: var(--text-2); font-size: 1.2rem; margin: 0 0 var(--space-3); }
+.vr-slide-meta { display: flex; gap: var(--space-4); color: var(--text-3); font-size: 0.95rem; }
+
+.vr-slide-head { margin-bottom: var(--space-4); }
+.vr-slide-h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  line-height: 1.25;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.vr-slide-head .vr-slide-sub { margin: var(--space-2) 0 0; font-size: 1.05rem; }
+.vr-slide-blocks { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: var(--space-3); }
+.vr-slide-blocks--center { align-items: center; }
+.vr-slide-blocks .vr-block { margin: 0; }
+
+/* deck 内的密度调整：字号放大、间距收紧 */
+.vr-slide .vr-prose { font-size: 1.08rem; }
+.vr-slide .vr-prose li { margin: var(--space-2) 0; font-size: 1.15rem; }
+.vr-slide .vr-quote { font-size: 1.35rem; }
+.vr-slide .vr-kpi .vr-kpi-value { font-size: 2.4rem; }
+.vr-slide .vr-kpi .vr-kpi-label { font-size: 1rem; }
+.vr-slide .vr-timeline .vr-tl-title { font-size: 1.1rem; }
+
+/* deck chrome */
+.vr-progress { position: fixed; left: 0; top: 0; height: 4px; width: 100%; background: var(--surface-2); z-index: 200; }
+.vr-progress > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.vr-counter { position: fixed; right: 18px; bottom: 14px; font-size: .85rem; color: var(--text-3); z-index: 200; }
+.vr-hint { position: fixed; left: 18px; bottom: 14px; font-size: .8rem; color: var(--text-3); opacity: .7; z-index: 200; }
+.vr-deck-footer {
+  position: fixed; right: 50%; transform: translateX(50%);
+  bottom: 14px; font-size: .75rem; color: var(--text-3); opacity: .6; z-index: 199;
+}
+
+/* 演讲者备注面板（N 键） */
+.vr-notes {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 320px;
+  background: var(--surface); border-left: 1px solid var(--border);
+  padding: var(--space-4); transform: translateX(100%); transition: transform .25s;
+  overflow-y: auto; z-index: 300; box-shadow: var(--shadow);
+}
+.vr-notes.vr-notes-open { transform: translateX(0); }
+/* 页内备注原文：仅作数据存储，永不显示（备注只经 N 键面板查看） */
+.vr-note-text { display: none; }
+.vr-notes h3 { margin: 0 0 var(--space-3); color: var(--text-1); }
+.vr-notes p { font-size: .85rem; color: var(--text-2); border-bottom: 1px solid var(--border); padding-bottom: var(--space-2); }
+.vr-notes p b { display: block; color: var(--text-1); margin-bottom: var(--space-1); }
+
+/* 打印：横向每页一张 */
+@media print {
+  @page { size: 1280px 720px; margin: 0; }
+  .vr-progress, .vr-counter, .vr-hint, .vr-notes, .vr-deck-footer { display: none !important; }
+  .vr-deck { transform: none !important; width: 1280px; height: auto; }
+  .vr-slide { display: flex !important; position: relative; inset: auto;
+    width: 1280px; height: 720px; page-break-after: always; break-after: page; }
+}
+
 /* ---- theme ---- */
 /* 主题：Minimal — 极简现代（默认兜底主题，技术方案/通用报告） */
 :root {

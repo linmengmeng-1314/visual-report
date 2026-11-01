@@ -77,14 +77,27 @@ def run_checks(html_path: Path, shot_dir: Path):
             # 4. 截图存证（仅桌面档做全页与分节截图）
             if vname == "desktop":
                 page.screenshot(path=str(shot_dir / "full-page.png"), full_page=True)
-                sections = page.locator(".vr-section, .vr-hero")
-                for i in range(sections.count()):
-                    el = sections.nth(i)
-                    sid = el.get_attribute("id") or f"section-{i}"
-                    try:
-                        el.screenshot(path=str(shot_dir / f"{sid}.png"))
-                    except Exception:
-                        pass
+                is_deck = page.locator(".vr-slide").count() > 0
+                if is_deck:
+                    # deck：逐页激活后截图（默认只显示当前页）
+                    n = page.locator(".vr-slide").count()
+                    for i in range(n):
+                        sid = page.evaluate(
+                            f"() => {{ document.querySelectorAll('.vr-slide').forEach(function(s, j){{ s.classList.toggle('vr-active', j === {i}); }}); return document.querySelectorAll('.vr-slide')[{i}].id || 'slide-{i}'; }}"
+                        )
+                        page.screenshot(path=str(shot_dir / f"{sid}.png"))
+                    page.evaluate(
+                        "document.querySelectorAll('.vr-slide').forEach(function(s, j){ s.classList.toggle('vr-active', j === 0); })"
+                    )
+                else:
+                    sections = page.locator(".vr-section, .vr-hero")
+                    for i in range(sections.count()):
+                        el = sections.nth(i)
+                        sid = el.get_attribute("id") or f"section-{i}"
+                        try:
+                            el.screenshot(path=str(shot_dir / f"{sid}.png"))
+                        except Exception:
+                            pass
             page.close()
         browser.close()
 
