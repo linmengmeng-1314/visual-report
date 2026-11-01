@@ -18,7 +18,8 @@ description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图�
 ## 工作流
 
 ```
-① 理解素材          读用户给的 Markdown/目录，识别主题、受众、关键数据、适合图表化的内容
+① 素材提取          素材含 md/txt/csv/json/docx/pdf 多文件时：python scripts/extract.py 素材目录/ -o .visual-report/material.md
+                     → 生成带来源与数值列标记的素材摘要，基于它做内容规划（docx/pdf 需 [input] 可选依赖）
 ② 内容规划          确定叙事结构（背景→目标→成果→风险→计划 等），先想清楚每节说什么
 ③ 写 report-plan    按 references/block-reference.md 的块类型组装 JSON（示例见 examples/）
 ④ 风格预览（可选）  用户未指定主题且内容重要时：python scripts/preview.py report-plan.json

@@ -38,7 +38,9 @@ python -m visual_report.render examples/demo-report/report-plan.json \
 python scripts/static_check.py output/report.html                        # 第二层：静态质检
 ```
 
-在 Claude Code 中作为 Skill 使用：把本仓库放入 skills 目录（或 `~/.claude/skills/visual-report`），然后：
+**多格式素材**：`python scripts/extract.py 素材目录/` 把 md/txt/csv/json（docx/pdf 装可选依赖后同）提取为统一素材摘要与索引。
+
+在 Claude Code 中作为 Skill 使用：把本仓库放入 skills 目录（或 `~/.claude/skills/visual-report`）；Codex/OpenClaw 等其他 Agent 见 [AGENTS.md](AGENTS.md)。然后：
 
 ```
 /visual-report 请把当前目录的季度总结 md 生成一份图文 HTML 报告
@@ -70,9 +72,9 @@ text（Markdown）/ heading / list / quote / callout / code / image（自动 bas
 | Phase 2 | 更多主题与布局、架构/流程图（diagram 块）、风格预览、视觉检查 | ✅ 可用 |
 | Phase 3 | 持续修改闭环（节点 diff / 快照 / 历史 / 回滚 / 失败保护） | ✅ 可用 |
 | Phase 4a | 幻灯片模式（Slide Schema/Renderer/运行时/示例） | ✅ 可用 |
-| Phase 4b | 多格式输入（DOCX/PDF/CSV/JSON）、Agent 生态适配、英文 README | 规划 |
+| Phase 4b | 多格式输入（extract.py）、跨 Agent 适配（AGENTS.md） | ✅ 可用 |
 
-**未实现的功能不在本 README 宣称范围内**（例如 DOCX/PDF/CSV 多格式输入尚未支持）。
+**未实现的功能不在本 README 宣称范围内**（例如可编辑 .pptx 导出尚未支持）。
 
 ## 项目结构
 
