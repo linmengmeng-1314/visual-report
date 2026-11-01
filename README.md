@@ -22,7 +22,7 @@
 
 - ✍️ **AI 写计划，程序做渲染**：Agent 产出结构化的 `report-plan.json`（JSON Schema 校验），Python Renderer 确定性渲染——相同输入永远得到相同输出，AI 不直接拼接 HTML
 - 📴 **严格离线**：CSS/图表/图片全部内嵌，无 CDN、无在线字体、无运行时依赖；静态检查门禁强制保证（2MB 目标 / 5MB 硬上限）
-- 📊 **构建期图表**：柱状图/折线图/环形图与**流程/架构图**（网格坐标声明式节点）在构建时渲染为静态 SVG，零 JavaScript 运行时；缺失数据自动断线呈现，不编造
+- 📊 **构建期图表**：柱状图/折线图/环形图与**流程/架构图**（网格坐标声明式节点）在构建时渲染为静态 SVG，零 JavaScript 运行时；架构图自动**正交圆角布线**（同侧多边端口错开、交叉处跳桥垫线），几何 lint 在校验阶段拦截穿盒/压线/过密拐角；缺失数据自动断线呈现，不编造
 - 🎨 **Token 化主题**：主题 = 一份 CSS 变量文件，内置 minimal / corporate / tech / editorial / dashboard 五套，一条命令生成全部主题的真实预览供挑选（Show-Don't-Tell）
 - ✅ **三层质量门禁**：Schema 校验（ID 唯一性、白名单、离线约束）+ 静态检查（外部资源、锚点、重复 ID、弱标题、体积）+ 浏览器视觉检查（可选 Playwright：双视口溢出/裂图检测 + 全页及分节截图），不过门禁不交付
 - 🖥️ **幻灯片模式**：10 种版式、1280×720 缩放画布、原生 JS 运行时（翻页/全屏/总览/进度/演讲者备注，仅 ~150 行零依赖）、报告一键转 deck 脚手架
@@ -156,7 +156,7 @@ UPDATE_GOLDEN=1 .venv/bin/pytest       # 渲染行为有意变更时更新 golde
 | [html-ppt-skill](https://github.com/lewislulu/html-ppt-skill)（MIT） | Token 化主题层与"版式即完整 demo 页" |
 | [guizang-ppt-skill](https://github.com/op7418/guizang-ppt-skill) | 版式白名单与 px 级渲染测量思想 |
 | [vislide](https://github.com/shreyas-s-rao/vislide)（MIT） | 固定画布缩放自适应 |
-| [archify](https://github.com/tt-a1i/archify)（Apache-2.0） | 架构图语义色 color-mix、边标签胶囊底衬、点击聚焦交互 |
+| [archify](https://github.com/tt-a1i/archify)（Apache-2.0） | 架构图语义色 color-mix、边标签胶囊底衬、点击聚焦交互、正交布线与几何自检思路 |
 | [visual-explainer](https://github.com/nicobailon/visual-explainer) | "小改源文件重渲染，禁止整页重写"的修订纪律 |
 | [awesome-html-slide-skills](https://github.com/ToseaAI/awesome-html-slide-skills)（CC BY 4.0） | 竞品地图与生态洞察 |
 

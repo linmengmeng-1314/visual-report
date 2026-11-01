@@ -281,7 +281,7 @@ body {
 .vr-chart [data-edge-from] { transition: opacity .15s; }
 .vr-diagram-dim { opacity: 0.15; }
 /* 被点亮的相邻边：提亮加粗 */
-[data-edge-from].vr-diagram-on > line:not(.vr-edge-flow) {
+[data-edge-from].vr-diagram-on > .vr-edge-base {
   stroke: var(--accent);
   stroke-width: 2.5;
 }

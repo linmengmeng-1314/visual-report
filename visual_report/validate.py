@@ -11,6 +11,7 @@ from typing import List, Tuple
 import jsonschema
 
 from . import CHART_TYPES, LAYOUTS, SCHEMA_VERSION, THEMES
+from .diagram import lint_diagram
 
 _SCHEMAS_DIR = Path(__file__).resolve().parent.parent / "schemas"
 _SCHEMA_PATH = _SCHEMAS_DIR / "report.schema.json"
@@ -132,10 +133,20 @@ def _check_diagram(blk: dict, where: str, errors: List[str]) -> None:
         if cell in cells:
             errors.append(f"{where}: 节点「{n['id']}」与另一节点同占网格 {list(cell)}")
         cells.add(cell)
+    consistent = True
     for e in blk.get("edges", []):
+        if e["from"] == e["to"]:
+            errors.append(f"{where}: 自环边「{e['from']}」→ 自己，不支持")
+            consistent = False
         for end in ("from", "to"):
             if e[end] not in node_ids:
                 errors.append(f"{where}: 边的 {end}「{e[end]}」引用了不存在的节点")
+                consistent = False
+    if consistent:
+        # 几何 lint（diagram 2.0）：穿盒 / 标签压线 / 拐点数 / 短线段，
+        # 与渲染共用同一套布线（确定性），校验阶段即可预判
+        for issue in lint_diagram(blk["nodes"], blk.get("edges", [])):
+            errors.append(f"{where}: {issue}")
 
 
 def validate_plan(plan: dict) -> List[str]:

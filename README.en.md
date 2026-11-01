@@ -22,7 +22,7 @@ The crowded field of "AI slide skills" shares three weaknesses: font CDNs that b
 | | |
 |---|---|
 | **Two modes** | Report (8 layouts, TOC, print) + deck (10 layouts, 1280×720 canvas, native runtime: arrows / F fullscreen / O overview / N speaker notes) |
-| **Diagrams** | Declarative grid-coordinate architecture/flow diagrams rendered to static SVG at build time — semantic node colors (color-mix tokens), pill-backed edge labels, click-to-focus |
+| **Diagrams** | Declarative grid-coordinate architecture/flow diagrams rendered to static SVG at build time — automatic orthogonal routing with rounded corners (port spreading, crossover halos), semantic node colors (color-mix tokens), pill-backed edge labels, click-to-focus, plus a geometry lint in the validation gate |
 | **Charts** | bar / line / donut with multi-series and honest null-gap handling (missing data breaks the line, never fabricated) |
 | **Themes** | 5 token-based themes (minimal / corporate / tech / editorial / dashboard); one command renders real previews of all themes to choose from (Show, Don't Tell) |
 | **Transform** | `to_slides.py` scaffolds a deck from an existing report — KPIs, charts and diagrams carry over; the agent refines the narrative |
