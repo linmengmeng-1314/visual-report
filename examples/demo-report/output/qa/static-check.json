@@ -1,0 +1,10 @@
+{
+  "file": "examples/demo-report/output/visual-report.html",
+  "status": "PASS",
+  "sizeBytes": 34085,
+  "sizeState": "ok",
+  "errors": [],
+  "warnings": [],
+  "sections": 23,
+  "checkedAtVersion": "static-check/0.1"
+}

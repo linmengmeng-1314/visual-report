@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "file": "examples/demo-report/output/visual-report.html",
+  "errors": [],
+  "warnings": [],
+  "screenshots": "examples/demo-report/output/qa/screenshots",
+  "viewports": [
+    "desktop",
+    "mobile"
+  ]
+}

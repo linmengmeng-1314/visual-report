@@ -1,0 +1,10 @@
+{
+  "file": "examples/demo-deck/output/visual-deck.html",
+  "status": "PASS",
+  "sizeBytes": 32523,
+  "sizeState": "ok",
+  "errors": [],
+  "warnings": [],
+  "sections": 17,
+  "checkedAtVersion": "static-check/0.1"
+}

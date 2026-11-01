@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "file": "examples/demo-deck/output/visual-deck.html",
+  "errors": [],
+  "warnings": [],
+  "screenshots": "examples/demo-deck/output/qa/screenshots",
+  "viewports": [
+    "desktop",
+    "mobile"
+  ]
+}

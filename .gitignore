@@ -10,9 +10,12 @@ __pycache__/
 .venv/
 venv/
 
-# 项目运行产物（V3 ADR：交付物不进版本库）
-output/
-.visual-report/
+# 项目运行产物（V3 ADR：交付物不进版本库——仅根目录，examples 的演示产物要入库）
+/output/
+/.visual-report/
+
+# 示例的可再生质检截图（HTML 与 qa JSON 入库，截图体积大且可重新生成）
+examples/*/output/qa/screenshots/
 
 # 测试与工具缓存
 .pytest_cache/
