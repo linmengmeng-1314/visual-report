@@ -21,12 +21,16 @@ description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图�
 ① 理解素材          读用户给的 Markdown/目录，识别主题、受众、关键数据、适合图表化的内容
 ② 内容规划          确定叙事结构（背景→目标→成果→风险→计划 等），先想清楚每节说什么
 ③ 写 report-plan    按 references/block-reference.md 的块类型组装 JSON（示例见 examples/）
-④ 第一层校验        python scripts/validate.py report-plan.json     → 必须 PASS
-⑤ 渲染              python -m visual_report.render report-plan.json -o output/visual-report.html
-⑥ 第二层质检        python scripts/static_check.py output/visual-report.html --json output/qa/static-check.json
+④ 风格预览（可选）  用户未指定主题且内容重要时：python scripts/preview.py report-plan.json
+                     生成 5 份真实主题预览让用户挑，选定后写回 meta.theme
+⑤ 第一层校验        python scripts/validate.py report-plan.json     → 必须 PASS
+⑥ 渲染              python -m visual_report.render report-plan.json -o output/visual-report.html
+⑦ 第二层质检        python scripts/static_check.py output/visual-report.html --json output/qa/static-check.json
                      → FAILED 必须修复重渲染；WARNING 酌情
-⑦ 交付              告知用户 HTML 路径；提醒可断网打开、可浏览器打印成 PDF
+⑧ 交付              告知用户 HTML 路径；提醒可断网打开、可浏览器打印成 PDF
 ```
+
+预览真实性规则（ADR-010，强制）：预览必须是**真实内容渲染出的完整页面**；禁止占位文本；禁止在预览页面上出现 "Option A / preview / 模板" 等流程字样；用户挑的是审美，不是参数。
 
 若用户系统无 Python 依赖：`pip install markdown-it-py jsonschema`（仅两个轻量依赖）。
 
