@@ -169,7 +169,11 @@
                 "label": { "type": "string" },
                 "value": { "type": "string" },
                 "delta": { "type": "string" },
-                "trend": { "enum": ["up", "down", "flat"] }
+                "trend": { "enum": ["up", "down", "flat"] },
+                "good": {
+                  "type": "boolean",
+                  "description": "该变化是否为改善。默认 up=改善绿/down=恶化红；指标下降即改善时（如响应时长、故障率）必须显式设 good=true，让箭头方向与颜色语义解耦"
+                }
               }
             }
           }

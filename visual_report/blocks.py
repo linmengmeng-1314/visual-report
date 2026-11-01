@@ -91,7 +91,9 @@ def _r_kpi(blk, _):
         delta = ""
         if it.get("delta"):
             trend = it.get("trend", "flat")
-            cls = {"up": "vr-kpi-delta--up", "down": "vr-kpi-delta--down"}.get(trend, "")
+            # 颜色表达"好坏"，箭头表达"方向"，二者解耦（good 显式指定时优先生效）
+            improved = it.get("good", trend == "up")
+            cls = "vr-kpi-delta--up" if improved else "vr-kpi-delta--down"
             arrow = {"up": "▲", "down": "▼", "flat": ""}.get(trend, "")
             delta = f'<div class="vr-kpi-delta {cls}">{arrow} {_esc(it["delta"])}</div>'
         items.append(

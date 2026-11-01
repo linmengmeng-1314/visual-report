@@ -29,11 +29,12 @@ def _fmt(v: float) -> str:
 
 
 def _nice_max(values: Sequence[float]) -> float:
+    """取"好看"的坐标上限：候选系数均为 4 的整数倍或可整除，保证刻度整齐。"""
     vmax = max(values) if values else 1
     if vmax <= 0:
         return 1
     magnitude = 10 ** math.floor(math.log10(vmax))
-    for m in (1, 2, 2.5, 5, 10):
+    for m in (1, 2, 4, 8, 10):
         if vmax <= m * magnitude:
             return m * magnitude
     return 10 * magnitude
