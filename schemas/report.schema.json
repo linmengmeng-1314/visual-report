@@ -17,7 +17,7 @@
         "subtitle": { "type": "string" },
         "author": { "type": "string" },
         "date": { "type": "string" },
-        "theme": { "enum": ["minimal", "corporate", "tech"] },
+        "theme": { "enum": ["minimal", "corporate", "tech", "editorial", "dashboard"] },
         "lang": { "enum": ["zh-CN", "en"], "default": "zh-CN" },
         "schemaVersion": { "const": "0.1" },
         "footer": { "type": "string" }
@@ -65,6 +65,7 @@
         { "$ref": "#/definitions/blocks/image" },
         { "$ref": "#/definitions/blocks/kpi" },
         { "$ref": "#/definitions/blocks/chart" },
+        { "$ref": "#/definitions/blocks/diagram" },
         { "$ref": "#/definitions/blocks/table" },
         { "$ref": "#/definitions/blocks/timeline" },
         { "$ref": "#/definitions/blocks/cards" },
@@ -213,6 +214,52 @@
                     "values": { "type": "array", "items": { "type": ["number", "null"] } }
                   }
                 }
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "diagram": {
+        "type": "object",
+        "required": ["type", "nodes"],
+        "properties": {
+          "id": { "$ref": "#/definitions/blockId" },
+          "type": { "const": "diagram" },
+          "diagramType": { "enum": ["flow", "architecture"], "description": "语义提示，渲染引擎相同" },
+          "direction": { "enum": ["lr", "tb"], "default": "lr" },
+          "caption": { "type": "string" },
+          "nodes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["id", "label", "at"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+                "label": { "type": "string", "maxLength": 40, "description": "支持 \\n 换行，超宽自动换行" },
+                "at": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": { "type": "integer", "minimum": 0 },
+                  "description": "网格坐标 [列, 行]，从 0 起"
+                },
+                "kind": { "enum": ["client", "service", "storage", "queue", "external"] }
+              }
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["from", "to"],
+              "additionalProperties": false,
+              "properties": {
+                "from": { "type": "string" },
+                "to": { "type": "string" },
+                "label": { "type": "string", "maxLength": 20 }
               }
             }
           }

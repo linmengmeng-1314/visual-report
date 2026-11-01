@@ -4,5 +4,5 @@ __version__ = "0.1.0"
 
 SCHEMA_VERSION = "0.1"
 LAYOUTS = ["hero", "prose", "two-col", "cards", "kpi", "chart-focus", "timeline", "conclusion"]
-THEMES = ["minimal", "corporate", "tech"]
+THEMES = ["minimal", "corporate", "tech", "editorial", "dashboard"]
 CHART_TYPES = ["bar", "line", "donut"]

@@ -42,6 +42,34 @@
           "content": "Q2 旺季期间客服进线量达到 **日均 4.7 万通**，环比增长 35%，而人工坐席编制仅增长 8%。6 月高峰期平均响应时长一度达到 **92 秒**，投诉率抬升，「接不进来、答不过来」成为用户反馈的高频关键词。\n\n7 月初组内确定 Q3 核心目标：**把可自动化的问诊交给机器人，让人工聚焦高价值复杂场景**。具体拆解为三条线："
         },
         {
+          "id": "background-arch",
+          "type": "diagram",
+          "diagramType": "architecture",
+          "caption": "智能客服系统架构：分流策略位于网关之后，机器人与人工共享工单上下文",
+          "nodes": [
+            { "id": "app", "label": "App/小程序", "at": [0, 0], "kind": "client" },
+            { "id": "hotline", "label": "电话热线", "at": [0, 1], "kind": "client" },
+            { "id": "gateway", "label": "统一接入网关", "at": [1, 0], "kind": "service" },
+            { "id": "router", "label": "分流引擎\n14 条规则", "at": [2, 0], "kind": "service" },
+            { "id": "bot", "label": "意图识别机器人\nTOP 200", "at": [3, 0], "kind": "service" },
+            { "id": "agent", "label": "人机协作台", "at": [3, 1], "kind": "service" },
+            { "id": "ticket", "label": "工单库", "at": [4, 0], "kind": "storage" },
+            { "id": "kb", "label": "知识库", "at": [4, 1], "kind": "storage" },
+            { "id": "monitor", "label": "监控看板", "at": [2, 1], "kind": "external" }
+          ],
+          "edges": [
+            { "from": "app", "to": "gateway" },
+            { "from": "hotline", "to": "gateway" },
+            { "from": "gateway", "to": "router", "label": "全量会话" },
+            { "from": "router", "to": "bot", "label": "62%" },
+            { "from": "router", "to": "agent", "label": "38%" },
+            { "from": "bot", "to": "ticket" },
+            { "from": "agent", "to": "ticket" },
+            { "from": "kb", "to": "bot", "label": "检索" },
+            { "from": "router", "to": "monitor", "label": "埋点" }
+          ]
+        },
+        {
           "id": "background-goals",
           "type": "cards",
           "items": [

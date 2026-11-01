@@ -37,6 +37,8 @@ description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图�
 | minimal | 技术方案、通用报告（默认） |
 | corporate | 正式项目汇报、对上汇报 |
 | tech | 技术分享、架构介绍（深色） |
+| editorial | 研究报告、深度分析（衬线杂志风） |
+| dashboard | 经营分析、指标汇报（数据驾驶舱） |
 
 用户未指定时根据内容推荐并在 plan 里写 `meta.theme`。
 

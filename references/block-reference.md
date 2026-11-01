@@ -79,6 +79,26 @@ src 只允许本地路径或 data: URI，**禁止 http(s)**。
 - **缺失值用 null**（折线自动断线呈现，禁止编造补齐）
 - chartType: bar（对比）/ line（趋势）/ donut（占比）
 
+### diagram — 流程/架构图（构建期 SVG，零运行时）
+```json
+{"type": "diagram", "diagramType": "architecture",
+ "caption": "系统架构：一句话说清图的重点",
+ "nodes": [
+   {"id": "app", "label": "App/小程序", "at": [0, 0], "kind": "client"},
+   {"id": "gateway", "label": "统一接入网关", "at": [1, 0], "kind": "service"},
+   {"id": "db", "label": "主库", "at": [2, 0], "kind": "storage"}
+ ],
+ "edges": [
+   {"from": "app", "to": "gateway", "label": "HTTPS"},
+   {"from": "gateway", "to": "db"}
+ ]}
+```
+- `nodes[]`：`id`（小写-连字符）、`label`（支持 `\n` 换行，超 9 字自动换行）、`at: [列, 行]`（从 0 起，一格一节点）、`kind`（可选：client/service/storage/queue/external，决定边框色与线型）
+- `edges[]`：`{"from": "节点id", "to": "节点id", "label": "≤20字，如 62%"}`；主流程从左到右，跨行连线走斜线
+- 校验规则：节点 ID 唯一、同格冲突、边引用必须存在——都会被 validate.py 拦截
+
+布局心法：列 = 处理阶段（入口→网关→逻辑→存储），行 = 同阶段的并列组件；边标签写比例/协议等事实。
+
 ### table — 表格
 `{"type": "table", "columns": ["模块","状态"], "rows": [["渲染器","已实现"]]}`
 
@@ -98,6 +118,7 @@ src 只允许本地路径或 data: URI，**禁止 http(s)**。
 | 几个类别的数量对比 | bar |
 | 随时间变化/趋势 | line（多指标用 series） |
 | 占比构成 | donut |
+| 系统架构/数据流/处理流程 | diagram |
 | 单个关键数字 | kpi（不是图表） |
 | 计划/里程碑 | timeline |
 | 优劣对比 | columns 或 table |

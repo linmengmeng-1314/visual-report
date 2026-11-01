@@ -6,9 +6,11 @@
 
 ![hero](docs/screenshots/hero.png)
 
+![architecture](docs/screenshots/architecture.png)
+
 ![data](docs/screenshots/data.png)
 
-*示例：[examples/demo-report](examples/demo-report/output/visual-report.html)（企业季度运营报告，29KB 单文件，断网可开）*
+*示例：[examples/demo-report](examples/demo-report/output/visual-report.html)（企业季度运营报告，33KB 单文件，断网可开；架构图/图表均为构建期 SVG）*
 
 ## 核心特性
 

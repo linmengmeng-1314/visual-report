@@ -66,6 +66,7 @@ def validate_report(plan: dict) -> List[str]:
 
     # ---- 图片离线约束 ----
     for sec in plan.get("sections", []):
+        sid = sec.get("id", "<missing>")
         for i, blk in enumerate(sec.get("blocks", [])):
             if blk.get("type") == "image" and blk["src"].startswith(("http://", "https://")):
                 errors.append(
@@ -75,6 +76,7 @@ def validate_report(plan: dict) -> List[str]:
 
     # ---- 图表数据对齐 ----
     for sec in plan.get("sections", []):
+        sid = sec.get("id", "<missing>")
         for i, blk in enumerate(sec.get("blocks", [])):
             if blk.get("type") != "chart":
                 continue
@@ -92,6 +94,29 @@ def validate_report(plan: dict) -> List[str]:
                     f"[chart] section {sid} 第 {i + 1} 个块: values({len(data.get('values', []))}) "
                     f"与 labels({labels_n}) 不对齐"
                 )
+
+    # ---- diagram：节点 ID 唯一、坐标不冲突、边引用存在 ----
+    for sec in plan.get("sections", []):
+        sid = sec.get("id", "<missing>")
+        for i, blk in enumerate(sec.get("blocks", [])):
+            if blk.get("type") != "diagram":
+                continue
+            where = f"[diagram] section {sid} 第 {i + 1} 个块"
+            node_ids, cells = set(), set()
+            for n in blk["nodes"]:
+                if n["id"] in node_ids:
+                    errors.append(f"{where}: 节点 ID「{n['id']}」重复")
+                node_ids.add(n["id"])
+                cell = tuple(n["at"])
+                if cell in cells:
+                    errors.append(f"{where}: 节点「{n['id']}」与另一节点同占网格 {list(cell)}")
+                cells.add(cell)
+            for e in blk.get("edges", []):
+                for end in ("from", "to"):
+                    if e[end] not in node_ids:
+                        errors.append(
+                            f"{where}: 边的 {end}「{e[end]}」引用了不存在的节点"
+                        )
 
     return errors
 

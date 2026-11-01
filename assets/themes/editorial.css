@@ -1,0 +1,24 @@
+/* 主题：Editorial — 杂志编辑风（研究报告/深度分析）：衬线大标题 + 暖纸色 */
+:root {
+  --bg: #faf8f4;
+  --surface: #f2eee6;
+  --surface-2: #e9e3d7;
+  --text-1: #2b2620;
+  --text-2: #55483c;
+  --text-3: #93857a;
+  --accent: #b3541e;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(179, 84, 30, 0.08);
+  --border: #e2dbcd;
+  --chart-1: #b3541e;
+  --chart-2: #7a8b3f;
+  --chart-3: #c9a227;
+  --chart-4: #5f7185;
+  --chart-5: #a83a3a;
+  --chart-6: #3f7d6d;
+  --font-heading: "Georgia", "Times New Roman", "Songti SC", "SimSun",
+    "Noto Serif CJK SC", serif;
+  --radius: 6px;
+  --radius-s: 4px;
+  --shadow: 0 1px 3px rgba(43, 38, 32, 0.08), 0 6px 18px rgba(43, 38, 32, 0.06);
+}

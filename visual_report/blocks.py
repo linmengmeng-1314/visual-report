@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Optional
 
 from . import charts
+from .diagram import render_diagram
 from .md import md_to_html
 
 
@@ -170,6 +171,18 @@ def _r_columns(blk, _):
     return f'<div class="vr-cols">{cols}</div>'
 
 
+def _r_diagram(blk, _):
+    svg = render_diagram(
+        blk["nodes"], blk.get("edges", []), blk.get("caption", ""),
+        blk.get("direction", "lr"),
+    )
+    caption = (
+        f'<figcaption class="vr-figure-caption">{_esc(blk["caption"])}</figcaption>'
+        if blk.get("caption") else ""
+    )
+    return f'<figure class="vr-chart">{svg}{caption}</figure>'
+
+
 _BLOCK_RENDERERS = {
     "text": _r_text,
     "heading": _r_heading,
@@ -180,6 +193,7 @@ _BLOCK_RENDERERS = {
     "image": _r_image,
     "kpi": _r_kpi,
     "chart": _r_chart,
+    "diagram": _r_diagram,
     "table": _r_table,
     "timeline": _r_timeline,
     "cards": _r_cards,
