@@ -12,6 +12,7 @@ from typing import Optional
 
 from . import __version__
 from .blocks import render_block
+from .diagram import FOCUS_JS
 from .validate import ValidationError, validate_report_or_raise
 
 _ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
@@ -23,25 +24,8 @@ _RUNTIME_JS = """(function(){
       btn.classList.toggle('vr-visible', window.scrollY > 600);
     }, {passive:true});
   }
-  // 架构图聚焦：点击节点只亮它和相邻边，再点取消（借鉴 archify 的 focus 交互）
-  var focused = null;
-  document.addEventListener('click', function(e){
-    var node = e.target.closest('[data-node-id]');
-    if (!node) return;
-    var svg = node.closest('svg');
-    if (!svg) return;
-    var id = node.getAttribute('data-node-id');
-    if (focused === id) { id = null; }
-    focused = id;
-    svg.querySelectorAll('[data-node-id]').forEach(function(el){
-      el.classList.toggle('vr-diagram-dim', focused && el.getAttribute('data-node-id') !== focused);
-    });
-    svg.querySelectorAll('[data-edge-from]').forEach(function(el){
-      var on = focused && (el.getAttribute('data-edge-from') === focused || el.getAttribute('data-edge-to') === focused);
-      el.classList.toggle('vr-diagram-dim', focused && !on);
-    });
-  });
-})();"""
+})();
+""" + FOCUS_JS
 
 
 def _esc(s) -> str:

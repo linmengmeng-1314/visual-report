@@ -274,9 +274,17 @@ body {
 /* ---- 图表容器（构建期 SVG，ADR-005） ---- */
 .vr-chart { margin: var(--space-4) 0; }
 .vr-chart svg { width: 100%; height: auto; display: block; }
-/* 架构图聚焦（点击节点，非相邻元素压暗；借鉴 archify） */
+/* 架构图聚焦（悬浮高亮相邻边、点击固定；借鉴 archify）。
+   SVG 内文字不接指针事件——悬浮节点文字时事件穿透到节点盒，否则聚焦失灵 */
+.vr-chart svg text { pointer-events: none; }
 .vr-chart [data-node-id] { cursor: pointer; transition: opacity .15s; }
+.vr-chart [data-edge-from] { transition: opacity .15s; }
 .vr-diagram-dim { opacity: 0.15; }
+/* 被点亮的相邻边：提亮加粗 */
+[data-edge-from].vr-diagram-on > line:not(.vr-edge-flow) {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
 .vr-chart-legend {
   list-style: none;
   display: flex;
@@ -569,24 +577,41 @@ body {
       btn.classList.toggle('vr-visible', window.scrollY > 600);
     }, {passive:true});
   }
-  // 架构图聚焦：点击节点只亮它和相邻边，再点取消（借鉴 archify 的 focus 交互）
-  var focused = null;
-  document.addEventListener('click', function(e){
-    var node = e.target.closest('[data-node-id]');
-    if (!node) return;
-    var svg = node.closest('svg');
-    if (!svg) return;
-    var id = node.getAttribute('data-node-id');
-    if (focused === id) { id = null; }
-    focused = id;
-    svg.querySelectorAll('[data-node-id]').forEach(function(el){
-      el.classList.toggle('vr-diagram-dim', focused && el.getAttribute('data-node-id') !== focused);
+})();
+(function(){
+  function installDiagramFocus(){
+    var pinned = null;
+    function applyFocus(id){
+      document.querySelectorAll('svg [data-node-id], svg [data-edge-from]').forEach(function(el){
+        var on;
+        if (el.hasAttribute('data-node-id')) {
+          on = id && el.getAttribute('data-node-id') === id;
+        } else {
+          on = id && (el.getAttribute('data-edge-from') === id || el.getAttribute('data-edge-to') === id);
+        }
+        el.classList.toggle('vr-diagram-dim', id && !on);
+        el.classList.toggle('vr-diagram-on', !!on);
+      });
+    }
+    document.addEventListener('mouseover', function(e){
+      var node = e.target.closest('[data-node-id]');
+      if (node) applyFocus(node.getAttribute('data-node-id'));
     });
-    svg.querySelectorAll('[data-edge-from]').forEach(function(el){
-      var on = focused && (el.getAttribute('data-edge-from') === focused || el.getAttribute('data-edge-to') === focused);
-      el.classList.toggle('vr-diagram-dim', focused && !on);
+    document.addEventListener('mouseout', function(e){
+      if (e.target.closest && e.target.closest('[data-node-id]')) {
+        applyFocus(pinned);  // 恢复到固定态（无固定则全亮）
+      }
     });
-  });
+    document.addEventListener('click', function(e){
+      var node = e.target.closest('[data-node-id]');
+      if (!node) return;
+      var id = node.getAttribute('data-node-id');
+      pinned = (pinned === id) ? null : id;
+      applyFocus(pinned || id);  // 点击即固定当前高亮；再点同节点解除
+      if (!pinned) applyFocus(null);
+    });
+  }
+  installDiagramFocus();
 })();
 </script>
 </body>

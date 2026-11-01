@@ -34,6 +34,45 @@ def _esc(s) -> str:
     return html.escape(str(s), quote=True)
 
 
+# 架构图聚焦交互（报告与 deck 共用，借鉴 archify focus）：
+# 悬浮节点 → 它与相邻边点亮、其余压暗；移开恢复；点击固定/解除。
+FOCUS_JS = """(function(){
+  function installDiagramFocus(){
+    var pinned = null;
+    function applyFocus(id){
+      document.querySelectorAll('svg [data-node-id], svg [data-edge-from]').forEach(function(el){
+        var on;
+        if (el.hasAttribute('data-node-id')) {
+          on = id && el.getAttribute('data-node-id') === id;
+        } else {
+          on = id && (el.getAttribute('data-edge-from') === id || el.getAttribute('data-edge-to') === id);
+        }
+        el.classList.toggle('vr-diagram-dim', id && !on);
+        el.classList.toggle('vr-diagram-on', !!on);
+      });
+    }
+    document.addEventListener('mouseover', function(e){
+      var node = e.target.closest('[data-node-id]');
+      if (node) applyFocus(node.getAttribute('data-node-id'));
+    });
+    document.addEventListener('mouseout', function(e){
+      if (e.target.closest && e.target.closest('[data-node-id]')) {
+        applyFocus(pinned);  // 恢复到固定态（无固定则全亮）
+      }
+    });
+    document.addEventListener('click', function(e){
+      var node = e.target.closest('[data-node-id]');
+      if (!node) return;
+      var id = node.getAttribute('data-node-id');
+      pinned = (pinned === id) ? null : id;
+      applyFocus(pinned || id);  // 点击即固定当前高亮；再点同节点解除
+      if (!pinned) applyFocus(null);
+    });
+  }
+  installDiagramFocus();
+})();"""
+
+
 def _wrap_label(label: str, width: int = 9) -> List[str]:
     """CJK 友好的标签换行：显式 \\n 优先，其次按宽度截断，最多 3 行。"""
     if "\n" in label:
@@ -89,16 +128,16 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
         f'<path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-3)"/></marker></defs>',
     ]
 
-    # ---- 边（线在节点下层） ----
+    # ---- 边（线在节点下层；base+流光包在同一 <g>，聚焦时整组点亮/压暗） ----
     labels_svg = []  # 标签统一在节点之后绘制，保证不被节点盒遮挡
     for e_idx, e in enumerate(edges):
         x1, y1 = centers[e["from"]]
         x2, y2 = centers[e["to"]]
         sx, sy, ex, ey = _trim_to_box(x1, y1, x2, y2)
+        parts.append(f'<g data-edge-from="{_esc(e["from"])}" data-edge-to="{_esc(e["to"])}">')
         parts.append(
             f'<line x1="{sx:.1f}" y1="{sy:.1f}" x2="{ex:.1f}" y2="{ey:.1f}" '
-            f'stroke="var(--text-3)" stroke-width="1.5" marker-end="url(#vr-arrow)" '
-            f'data-edge-from="{_esc(e["from"])}" data-edge-to="{_esc(e["to"])}"/>'
+            f'stroke="var(--text-3)" stroke-width="1.5" marker-end="url(#vr-arrow)"/>'
         )
         if animated:
             # 流光覆盖线：CSS dashoffset 动画沿箭头方向流动（借鉴 archify comet，
@@ -107,6 +146,7 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
                 f'<line class="vr-edge-flow" x1="{sx:.1f}" y1="{sy:.1f}" x2="{ex:.1f}" y2="{ey:.1f}" '
                 f'style="animation-delay:{e_idx * 0.35:.2f}s"/>'
             )
+        parts.append("</g>")
         if e.get("label"):
             mx, my = (sx + ex) / 2, (sy + ey) / 2
             if abs(ex - sx) < 1:      # 垂直边：标签放线右侧

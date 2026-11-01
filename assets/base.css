@@ -266,9 +266,17 @@ body {
 /* ---- 图表容器（构建期 SVG，ADR-005） ---- */
 .vr-chart { margin: var(--space-4) 0; }
 .vr-chart svg { width: 100%; height: auto; display: block; }
-/* 架构图聚焦（点击节点，非相邻元素压暗；借鉴 archify） */
+/* 架构图聚焦（悬浮高亮相邻边、点击固定；借鉴 archify）。
+   SVG 内文字不接指针事件——悬浮节点文字时事件穿透到节点盒，否则聚焦失灵 */
+.vr-chart svg text { pointer-events: none; }
 .vr-chart [data-node-id] { cursor: pointer; transition: opacity .15s; }
+.vr-chart [data-edge-from] { transition: opacity .15s; }
 .vr-diagram-dim { opacity: 0.15; }
+/* 被点亮的相邻边：提亮加粗 */
+[data-edge-from].vr-diagram-on > line:not(.vr-edge-flow) {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
 .vr-chart-legend {
   list-style: none;
   display: flex;

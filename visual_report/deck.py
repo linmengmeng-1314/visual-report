@@ -12,6 +12,7 @@ from typing import Optional
 
 from . import __version__
 from .blocks import render_block
+from .diagram import FOCUS_JS
 from .render import _load_css
 from .validate import validate_report_or_raise
 
@@ -63,7 +64,7 @@ RUNTIME_JS = """(function(){
   deck.addEventListener('click', function(e){
     var s = e.target.closest('.vr-slide');
     if (overview && s) { pickFromOverview(slides.indexOf(s)); return; }
-    if (e.target.closest('a')) return;
+    if (e.target.closest('a, [data-node-id]')) return;  // 链接与图节点聚焦不触发翻页
     if (!overview) go(cur + 1);
   });
 
@@ -71,6 +72,8 @@ RUNTIME_JS = """(function(){
   var m = location.hash.match(/^#\\/(\d+)/);
   fit(); go(m ? parseInt(m[1], 10) : 0, false);
 })();"""
+
+DECK_FOCUS_JS = FOCUS_JS  # 架构图悬浮/点击聚焦（报告与 deck 共用）
 
 
 def _esc(s) -> str:
@@ -164,6 +167,9 @@ def render_deck(plan: dict, base_dir: Optional[Path] = None) -> str:
 <footer class="vr-deck-footer">{_esc(footer_text)}</footer>
 <script>
 {RUNTIME_JS}
+</script>
+<script>
+{DECK_FOCUS_JS}
 </script>
 </body>
 </html>
