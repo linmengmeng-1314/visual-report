@@ -30,22 +30,64 @@
 
 ## 快速开始
 
-```bash
-pip install markdown-it-py jsonschema   # 仅有的两个依赖
+### 安装（一次性）
 
-# 用示例跑通全链路
+```bash
+git clone https://github.com/linmengmeng-1314/visual-report.git ~/.claude/skills/visual-report
+pip install markdown-it-py jsonschema   # 仅有的两个必装依赖
+```
+
+其他 Agent（Codex/OpenClaw/Cursor）见 [AGENTS.md](AGENTS.md)。
+
+### 三种典型用法
+
+**① 代码项目 → 技术汇报**（最常用：不用准备任何文档，Agent 直接读代码）
+
+到你的项目目录里，对 Claude Code 说：
+
+```
+用 visual-report 根据当前项目生成一份技术汇报，要包含系统架构图和核心请求流程图
+```
+
+Agent 会读代码 → 规划叙事 → 产出 `report-plan.json`（架构图在这一步直接声明节点与连线，**不需要你提供 Mermaid 或图源**）→ 自动完成校验、渲染、质检，交付 `output/visual-report.html`。
+
+**② 已有素材 → 汇报**（md 文档 / CSV 数据 / docx / pdf）
+
+```
+用 visual-report 根据 docs/ 目录和 data.csv 生成一份经营分析报告
+```
+
+多格式素材由 `extract.py` 统一提取（docx/pdf 需 `pip install "visual-report[input]"`）。
+
+**③ 报告 → 宣讲幻灯片**
+
+报告生成后追加一句：
+
+```
+把这份报告转成 15 分钟宣讲的幻灯片
+```
+
+图表/架构图/KPI 自动复用，Agent 按时长精炼叙事，产出可翻页/全屏/带演讲备注的 deck（`F` 全屏 · `O` 总览 · `N` 备注；架构图支持悬浮高亮相邻流程与流光动画）。
+
+### 生成之后：自然语言持续修改
+
+```
+把第二章节改得更适合领导阅读
+整体换成深色科技风            ← 会先生成 5 个主题的真实预览供你挑选
+把架构图里的缓存层去掉
+只改第三章节的图表，其他不要动   ← 节点级 diff，改哪说哪
+回滚到上一版
+```
+
+> **一个重要提示**：不要自己先写好一份完整报告再让它"排版"——那样它只会做格式转换，失去内容提炼、图表化、叙事重组的价值。正确分工是**你给素材，它管想清楚怎么讲**。
+
+### 手动跑命令（了解管线 / 非 Agent 环境）
+
+```bash
 python scripts/validate.py examples/demo-report/report-plan.json          # 第一层：Schema 校验
 python -m visual_report.render examples/demo-report/report-plan.json \
     -o output/report.html --base-dir examples/demo-report                # 渲染单文件 HTML
 python scripts/static_check.py output/report.html                        # 第二层：静态质检
-```
-
-**多格式素材**：`python scripts/extract.py 素材目录/` 把 md/txt/csv/json（docx/pdf 装可选依赖后同）提取为统一素材摘要与索引。
-
-在 Claude Code 中作为 Skill 使用：把本仓库放入 skills 目录（或 `~/.claude/skills/visual-report`）；Codex/OpenClaw 等其他 Agent 见 [AGENTS.md](AGENTS.md)。然后：
-
-```
-/visual-report 请把当前目录的季度总结 md 生成一份图文 HTML 报告
 ```
 
 ## 工作流
