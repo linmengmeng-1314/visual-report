@@ -4,6 +4,12 @@
 
 > An AI-native visual content engine: structured plans → deterministic rendering → single-file offline HTML reports.
 
+![hero](docs/screenshots/hero.png)
+
+![data](docs/screenshots/data.png)
+
+*示例：[examples/demo-report](examples/demo-report/output/visual-report.html)（企业季度运营报告，29KB 单文件，断网可开）*
+
 ## 核心特性
 
 - ✍️ **AI 写计划，程序做渲染**：Agent 产出结构化的 `report-plan.json`（JSON Schema 校验），Python Renderer 确定性渲染——相同输入永远得到相同输出，AI 不直接拼接 HTML
