@@ -27,7 +27,9 @@ description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图�
 ⑥ 渲染              python -m visual_report.render report-plan.json -o output/visual-report.html
 ⑦ 第二层质检        python scripts/static_check.py output/visual-report.html --json output/qa/static-check.json
                      → FAILED 必须修复重渲染；WARNING 酌情
-⑧ 交付              告知用户 HTML 路径；提醒可断网打开、可浏览器打印成 PDF
+⑧ 第三层质检（可选）已装 playwright 时：python scripts/visual_check.py output/visual-report.html
+                     → 溢出/裂图检查 + 全页及分节截图存证；未装则自动跳过（不阻断）
+⑨ 交付              告知用户 HTML 路径；提醒可断网打开、可浏览器打印成 PDF
 ```
 
 预览真实性规则（ADR-010，强制）：预览必须是**真实内容渲染出的完整页面**；禁止占位文本；禁止在预览页面上出现 "Option A / preview / 模板" 等流程字样；用户挑的是审美，不是参数。
