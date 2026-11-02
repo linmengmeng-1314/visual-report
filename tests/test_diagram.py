@@ -122,6 +122,40 @@ def test_direction_warnings_vertical_chain_in_lr():
     assert not direction_warnings(NODES, EDGES, "lr"), "水平主链不误报"
 
 
+# ---- 边标签几何（用户实测反馈：胶囊压箭头线；短段时压两端节点盒） ----------
+
+from visual_report.diagram import _boxes_for, plan_diagram
+
+
+def test_edge_label_never_overlaps_nodes_on_short_segment():
+    """邻列短段 + 宽胶囊：应落到行间走廊，而不是压到两端节点盒。"""
+    nodes = [
+        {"id": "a", "label": "步骤一", "at": [0, 0]},
+        {"id": "b", "label": "步骤二", "at": [1, 0]},
+    ]
+    edges = [{"from": "a", "to": "b", "label": "消费消息"}]  # 胶囊 58px > 间隙可用宽度
+    plan = plan_diagram(nodes, edges)
+    (lab,) = plan["labels"].values()
+    r = lab["rect"]
+    for b in _boxes_for(nodes).values():
+        assert not (r["x"] - 2 < b["x"] + 136 and r["x"] + r["w"] + 2 > b["x"]
+                    and r["y"] - 2 < b["y"] + 62 and r["y"] + r["h"] + 2 > b["y"]), \
+            f"标签胶囊压到节点 {b['id']}"
+
+
+def test_edge_label_lifted_above_line():
+    """胶囊放线上时抬高：底边与箭头线保持 ≥2px 间隙，描边不压线。"""
+    nodes = [
+        {"id": "a", "label": "A", "at": [0, 0]},
+        {"id": "b", "label": "B", "at": [2, 0]},  # 隔一格，段足够长
+    ]
+    plan = plan_diagram(nodes, [{"from": "a", "to": "b", "label": "HTTPS"}])
+    (lab,) = plan["labels"].values()
+    line_y = _boxes_for(nodes)["a"]["cy"]
+    assert lab["anchor"] == "middle"
+    assert lab["rect"]["y"] + lab["rect"]["h"] <= line_y - 2, "胶囊底边应高于箭头线 2px 以上"
+
+
 def test_diagram_orthogonal_straight_edge():
     """同行相邻格：直线（无拐点），path 形式输出。"""
     p = plan_diagram(NODES, EDGES)

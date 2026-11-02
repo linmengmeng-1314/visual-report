@@ -266,6 +266,14 @@ def _cell_center(col: int, row: int) -> Tuple[float, float]:
     return PAD + col * CW + CW / 2, PAD + row * CH + CH / 2
 
 
+def _rect_overlaps_box(rect: dict, box: dict, clearance: float) -> bool:
+    """矩形（标签胶囊）与节点盒（含间隙）是否相交——布线约束与 lint 共用同一判定。"""
+    return (rect["x"] - clearance < box["x"] + BOX_W
+            and rect["x"] + rect["w"] + clearance > box["x"]
+            and rect["y"] - clearance < box["y"] + BOX_H
+            and rect["y"] + rect["h"] + clearance > box["y"])
+
+
 def _boxes_for(nodes: List[dict]) -> Dict[str, dict]:
     boxes = {}
     for n in nodes:
@@ -566,7 +574,7 @@ def plan_diagram(nodes: List[dict], edges: List[dict]) -> dict:
                         crossings.append(p)
 
         def rect_free(rect):
-            """胶囊不压交叉点、不压不相关边（与 lint 同一判定）。"""
+            """胶囊不压交叉点、不压不相关边、不压节点盒（与 lint 同一判定）。"""
             for px, py in crossings:
                 if (rect["x"] - 4 <= px <= rect["x"] + rect["w"] + 4
                         and rect["y"] - 4 <= py <= rect["y"] + rect["h"] + 4):
@@ -577,6 +585,20 @@ def plan_diagram(nodes: List[dict], edges: List[dict]) -> dict:
                 for b in range(len(other_pts) - 1):
                     if _seg_intersects_rect(other_pts[b], other_pts[b + 1], rect, LABEL_CLEARANCE):
                         return False
+            for b in boxes.values():
+                if _rect_overlaps_box(rect, b, LABEL_CLEARANCE):
+                    return False
+            return True
+
+        def corridor_free(rect):
+            """行间走廊候选的判定：胶囊完全离开线，须避开包括本边在内的所有线段与节点盒。"""
+            for _, other_pts in routed:
+                for b in range(len(other_pts) - 1):
+                    if _seg_intersects_rect(other_pts[b], other_pts[b + 1], rect, LABEL_CLEARANCE):
+                        return False
+            for b in boxes.values():
+                if _rect_overlaps_box(rect, b, LABEL_CLEARANCE):
+                    return False
             return True
 
         def make_label(lx, ly, anchor):
@@ -609,10 +631,24 @@ def plan_diagram(nodes: List[dict], edges: List[dict]) -> dict:
                     lx = (lo + hi) / 2 + off
                     if not (span_lo - 1 <= lx <= span_hi + 1):
                         continue
-                    lab = make_label(lx, p[1] - 7, "middle")
+                    # 抬高 3px：胶囊底边与箭头线保持间隙，描边不压线
+                    lab = make_label(lx, p[1] - 10, "middle")
                     if rect_free(lab["rect"]):
                         chosen = lab
                         break
+                if chosen is None:
+                    # 行间走廊候选：段太短放不下胶囊时，标签下沉/上浮到相邻行间隙，
+                    # 并沿走廊左右滑动避开竖向线段（不压箭头线、不压节点盒）
+                    for ly in (p[1] + 50.5, p[1] - 45.5):
+                        for off in (0, -16, 16, -32, 32, -48, 48):
+                            lab = make_label(mid + off, ly, "middle")
+                            if corridor_free(lab["rect"]):
+                                chosen = lab
+                                break
+                        if chosen:
+                            break
+                if chosen:
+                    break
             else:
                 lo, hi = sorted((p[1], q[1]))
                 mid = (lo + hi) / 2
@@ -632,10 +668,10 @@ def plan_diagram(nodes: List[dict], edges: List[dict]) -> dict:
             if chosen:
                 break
         if chosen is None:
-            # 兜底：最长段中点（若仍压线，lint 会报出来）
+            # 兜底：最长段中点（若仍压线/压节点盒，lint 会报出来）
             p, q, _, is_h = segs[0]
             if is_h:
-                chosen = make_label((p[0] + q[0]) / 2, p[1] - 7, "middle")
+                chosen = make_label((p[0] + q[0]) / 2, p[1] - 10, "middle")
             else:
                 chosen = make_label(p[0] + 8, (p[1] + q[1]) / 2 + 4, "start")
         labels[idx] = chosen
@@ -805,6 +841,12 @@ def lint_diagram(nodes: List[dict], edges: List[dict]) -> List[str]:
 
     for idx, lab in plan["labels"].items():
         e = routes[idx][0]
+        for b in boxes.values():
+            if _rect_overlaps_box(lab["rect"], b, LABEL_CLEARANCE):
+                issues.append(
+                    f"[diagram-geo/标签压节点] 边「{e['from']}」→「{e['to']}」的标签"
+                    f"「{lab['text']}」压到节点「{b['id']}」— 请缩短标签或调整节点位置")
+                break
         for j, (other, other_pts) in enumerate(routes):
             if j == idx or _share_endpoint(e, other):
                 continue
