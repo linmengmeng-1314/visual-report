@@ -35,6 +35,8 @@
 ```bash
 git clone https://github.com/linmengmeng-1314/visual-report.git ~/.claude/skills/visual-report
 pip install markdown-it-py jsonschema   # 仅有的两个必装依赖
+# uv 管的 Python 会因 PEP 668 拒绝裸 pip，改用：
+# uv pip install --system --break-system-packages markdown-it-py jsonschema
 ```
 
 其他 Agent（Codex/OpenClaw/Cursor）见 [AGENTS.md](AGENTS.md)。
@@ -137,7 +139,7 @@ text（Markdown）/ heading / list / quote / callout / code / image（自动 bas
 
 ```bash
 python -m venv .venv && .venv/bin/pip install -e ".[dev]"
-.venv/bin/pytest                       # 38 个测试
+.venv/bin/pytest                       # 62 个测试
 UPDATE_GOLDEN=1 .venv/bin/pytest       # 渲染行为有意变更时更新 golden 基准
 ```
 

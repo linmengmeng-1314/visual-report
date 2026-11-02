@@ -32,6 +32,8 @@ The crowded field of "AI slide skills" shares three weaknesses: font CDNs that b
 
 ```bash
 pip install markdown-it-py jsonschema        # the only two required deps
+# uv-managed Python rejects bare pip (PEP 668); use this instead:
+# uv pip install --system --break-system-packages markdown-it-py jsonschema
 
 python scripts/validate.py examples/demo-report/report-plan.json   # gate 1
 python -m visual_report.render examples/demo-report/report-plan.json \
