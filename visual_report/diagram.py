@@ -732,6 +732,38 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
 # 几何 lint（diagram 2.0 第三子任务）
 # ---------------------------------------------------------------------------
 
+def direction_warnings(nodes: List[dict], edges: List[dict], direction: str) -> List[str]:
+    """主链方向与 direction 声明一致性（B1，建议级，不阻断渲染）。
+
+    判定用网格坐标而非布线结果：边 A→B 的 |Δ列| vs |Δ行| 谁大即该边行进主轴。
+    direction=lr 主轴应为水平、tb 应为纵向；跨主轴边占比 >30% 视为主链与声明相逆
+    （常见于把纵向主链塞进 lr 声明），提示改 direction 或重排 at。
+    阈值 30%：容忍少量纵向支线（如并列组件的上下连线），只在主链整体跨轴时提示。
+    """
+    if direction not in ("lr", "tb") or not edges:
+        return []
+    at = {n["id"]: tuple(n["at"]) for n in nodes}
+    cross = 0
+    for e in edges:
+        a, b = at.get(e["from"]), at.get(e["to"])
+        if not a or not b:
+            continue  # 引用错误由 validate 的 diagram 专项检查负责
+        dx, dy = abs(b[0] - a[0]), abs(b[1] - a[1])
+        if dx == dy:
+            continue  # 对角边不归属任一侧主轴
+        if (direction == "lr") == (dy > dx):
+            cross += 1
+    ratio = cross / len(edges)
+    if ratio > 0.30:
+        other = "tb" if direction == "lr" else "lr"
+        axis = "水平" if direction == "lr" else "纵向"
+        return [
+            f"主链方向与 direction={direction} 相逆的边占 {ratio:.0%}（>30%）："
+            f"考虑把 direction 改为 {other}，或重排 at 让主链沿{axis}展开"
+        ]
+    return []
+
+
 def lint_diagram(nodes: List[dict], edges: List[dict]) -> List[str]:
     """渲染前几何自检（确定性，与渲染共用同一套布线）：
 

@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from visual_report.validate import validate_plan  # noqa: E402
+from visual_report.validate import plan_warnings, validate_plan  # noqa: E402
 
 # 中文 Windows 控制台重定向输出时按 GBK 编码，✓/✗ 等符号会触发 UnicodeEncodeError——统一切 UTF-8（Mac/Linux 已是 UTF-8，此段无操作）
 for _s in (sys.stdout, sys.stderr):
@@ -44,6 +44,8 @@ def main() -> int:
         print(f"PASS — {len(plan['slides'])} 页幻灯片，ID 唯一，白名单校验通过")
     else:
         print(f"PASS — {len(plan['sections'])} 个 section，ID 唯一，白名单校验通过")
+    for w in plan_warnings(plan):  # 建议级（B1）：不阻断，exit 仍为 0
+        print(f"  ⚠ {w}")
     return 0
 
 

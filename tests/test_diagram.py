@@ -106,7 +106,20 @@ def test_diagram_marker_id_fallback_without_block_id():
 
 # ---- diagram 2.0：正交圆角布线 / crossover halo / 几何 lint ------------------
 
-from visual_report.diagram import lint_diagram, plan_diagram
+from visual_report.diagram import direction_warnings, lint_diagram, plan_diagram
+
+
+def test_direction_warnings_vertical_chain_in_lr():
+    """B1：lr 声明 + 纵向主链 → 建议级提示；tb 下同布局合法，水平主链不误报。"""
+    vertical = [
+        {"id": "a", "label": "A", "at": [0, 0]},
+        {"id": "b", "label": "B", "at": [0, 1]},
+        {"id": "c", "label": "C", "at": [0, 2]},
+    ]
+    chain = [{"from": f, "to": t} for f, t in (("a", "b"), ("b", "c"))]
+    assert direction_warnings(vertical, chain, "lr"), "纵向主链塞 lr 应提示"
+    assert not direction_warnings(vertical, chain, "tb"), "tb 下同布局合法"
+    assert not direction_warnings(NODES, EDGES, "lr"), "水平主链不误报"
 
 
 def test_diagram_orthogonal_straight_edge():

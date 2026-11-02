@@ -12,7 +12,7 @@ import jsonschema
 from jsonschema.exceptions import best_match
 
 from . import CHART_TYPES, LAYOUTS, SCHEMA_VERSION, THEMES
-from .diagram import lint_diagram
+from .diagram import direction_warnings, lint_diagram
 
 _SCHEMAS_DIR = Path(__file__).resolve().parent.parent / "schemas"
 _SCHEMA_PATH = _SCHEMAS_DIR / "report.schema.json"
@@ -192,6 +192,23 @@ def _check_diagram(blk: dict, where: str, errors: List[str]) -> None:
 def validate_plan(plan: dict) -> List[str]:
     """按结构自动路由：报告（sections）或幻灯片（slides）。"""
     return validate_slide(plan) if "slides" in plan else validate_report(plan)
+
+
+def plan_warnings(plan: dict) -> List[str]:
+    """建议级诊断（不阻断渲染）：主链方向一致性（B1）等。报告与幻灯片共用。"""
+    units = plan.get("slides", plan.get("sections", []))
+    out: List[str] = []
+    for unit in units:
+        uid = unit.get("id", "<missing>")
+        for i, blk in enumerate(unit.get("blocks", [])):
+            if blk.get("type") == "diagram":
+                out.extend(
+                    f"[diagram] {uid} 第 {i + 1} 个块: {w}"
+                    for w in direction_warnings(
+                        blk["nodes"], blk.get("edges", []), blk.get("direction", "lr")
+                    )
+                )
+    return out
 
 
 def validate_report_or_raise(plan: dict) -> None:
