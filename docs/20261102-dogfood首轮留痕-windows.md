@@ -66,13 +66,17 @@ visual-report 在家用 Mac 开发至 Phase 4b 全可用。2026-11-02 起在办�
   Chrome 常驻 + 管理员终端时 DevTools 管道问题同样影响 `--headless=new` 变体。
 - 边界：截图只覆盖"目检"，溢出/裂图的自动判定仍需 playwright（JS 求值）。
 
-### B3 渲染期自检（dogfood 反馈 A 的上游建议）
+### B3 渲染期自检（dogfood 反馈 A 的上游建议）——✅ 已实施（同日，`927bbe5`）
 
 - 现状：渲染器若产出非法 HTML（如重复 id），靠 static_check 兜底拦截——分层有效，
   但"渲染器自己产出非法产物"理想态应从源头杜绝。
 - 建议：render 主流程末尾加轻量 assert（同页 id 唯一性），违反即抛错不落盘。
 - 增补论据（2026-11-02 复审）：render 期若 assert 同页 id 唯一，dup-id 这类问题连
   static_check 都到不了——兜底有效，但每层都不应产出下一层才能发现的问题。**优先级上调**。
+- 实施：`render_report` 拆出 `_render_report_html`，报告/deck 双路径产出后统一过
+  `_self_check`（重复 DOM id 抛 ValueError 不落盘）；配套 `f2b6387` 让 revise 渲染
+  失败按契约转 ReviseError（旧产物保留），自检异常在各入口都表现为友好报错。
+  **backlog 仅余 B1 / B2 / B4。**
 
 ### B4（环境侧，非本仓库）uv ↔ setuptools 本地构建失败
 
