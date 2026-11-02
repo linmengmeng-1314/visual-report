@@ -82,7 +82,7 @@ def _esc(s) -> str:
 
 def _slide_inner(sl: dict, base_dir: Optional[Path], meta: dict) -> str:
     layout = sl["layout"]
-    blocks = "".join(render_block(b, base_dir) for b in sl.get("blocks", []))
+    blocks = "".join(render_block(b, base_dir, f"{sl['id']}-{i}") for i, b in enumerate(sl.get("blocks", [])))
     notes = (
         f'<div class="vr-note-text" data-note="{_esc(sl["id"])}">{_esc(sl["notes"])}</div>'
         if sl.get("notes") else ""

@@ -649,14 +649,18 @@ def plan_diagram(nodes: List[dict], edges: List[dict]) -> dict:
 # ---------------------------------------------------------------------------
 
 def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
-                   direction: str = "lr", animated: bool = False) -> str:
+                   direction: str = "lr", animated: bool = False,
+                   dom_id: str = "") -> str:
+    # marker id 由所属块 ID（或调用方传入的归属标识）派生：同页多图天然唯一、跨修订稳定；
+    # 不用模块级计数器——那会破坏 ADR-001 确定性（同进程重复渲染输出漂移）
+    marker_id = f"vr-arrow-{dom_id}" if dom_id else "vr-arrow"
     plan = plan_diagram(nodes, edges)
     W, H = plan["width"], plan["height"]
 
     parts = [
         f'<svg viewBox="0 0 {W} {H}" role="img" xmlns="http://www.w3.org/2000/svg" '
         f'style="max-width:{W}px;margin:0 auto;">',
-        f'<defs><marker id="vr-arrow" viewBox="0 0 10 10" refX="9" refY="5" '
+        f'<defs><marker id="{marker_id}" viewBox="0 0 10 10" refX="9" refY="5" '
         f'markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
         f'<path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-3)"/></marker></defs>',
     ]
@@ -673,7 +677,7 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
             )
         parts.append(
             f'<path class="vr-edge-base" d="{d}" fill="none" '
-            f'stroke="var(--text-3)" stroke-width="1.5" marker-end="url(#vr-arrow)"/>'
+            f'stroke="var(--text-3)" stroke-width="1.5" marker-end="url(#{marker_id})"/>'
         )
         if animated:
             # 流光覆盖线：CSS dashoffset 动画沿箭头方向流动（借鉴 archify comet，

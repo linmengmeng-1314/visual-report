@@ -27,9 +27,13 @@ def _embed_image(src: str, base_dir: Optional[Path]) -> str:
     return f"data:{mime};base64,{data}"
 
 
-def render_block(blk: dict, base_dir: Optional[Path] = None) -> str:
+def render_block(blk: dict, base_dir: Optional[Path] = None, owner: str = "") -> str:
     btype = blk["type"]
     bid = f' id="{_esc(blk["id"])}"' if blk.get("id") else ""
+    if btype == "diagram":
+        # diagram 特例：需要「归属标识」派生全页唯一的 marker id（块无 ID 时用 owner：容器 ID + 块序兜底）
+        inner = _r_diagram(blk, base_dir, blk.get("id") or owner)
+        return f'<div class="vr-block vr-block--{btype}"{bid}>{inner}</div>'
     fn = _BLOCK_RENDERERS.get(btype)
     if fn is None:
         raise ValueError(f"未知块类型: {btype}")
@@ -171,10 +175,10 @@ def _r_columns(blk, _):
     return f'<div class="vr-cols">{cols}</div>'
 
 
-def _r_diagram(blk, _):
+def _r_diagram(blk, _, dom_id=""):
     svg = render_diagram(
         blk["nodes"], blk.get("edges", []), blk.get("caption", ""),
-        blk.get("direction", "lr"), blk.get("animated", False),
+        blk.get("direction", "lr"), blk.get("animated", False), dom_id,
     )
     caption = (
         f'<figcaption class="vr-figure-caption">{_esc(blk["caption"])}</figcaption>'

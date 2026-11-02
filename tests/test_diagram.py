@@ -1,6 +1,9 @@
 """diagram 块测试：渲染 + 校验规则。"""
 
+import re
+
 from visual_report.diagram import render_diagram
+from visual_report.render import render_report
 from visual_report.validate import validate_report
 
 
@@ -79,6 +82,26 @@ def test_render_diagram_animated_flow():
     animated_svg = render_diagram(NODES, EDGES, animated=True)
     assert animated_svg.count("vr-edge-flow") == len(EDGES)
     assert "animation-delay" in animated_svg
+
+
+def test_multi_diagram_marker_ids_unique():
+    """回归：同页多图的 marker id 由块 ID 派生，全页唯一（曾致 static_check dup-id FAILED）。"""
+    plan = _plan_with_diagram(NODES, EDGES)
+    plan["sections"][0]["blocks"] = [
+        {"id": "d1", "type": "diagram", "nodes": NODES, "edges": EDGES},
+        {"id": "d2", "type": "diagram", "nodes": NODES, "edges": EDGES},
+    ]
+    html = render_report(plan)
+    assert re.findall(r'<marker id="([^"]+)"', html) == ["vr-arrow-d1", "vr-arrow-d2"]
+    assert html.count("url(#vr-arrow-d1)") == len(EDGES)  # 每张图只引用自己的 marker
+
+
+def test_diagram_marker_id_fallback_without_block_id():
+    """块无 ID（schema 允许省略）时以「容器 ID + 块序」兜底，同页多图仍唯一且确定。"""
+    plan = _plan_with_diagram(NODES, EDGES)
+    plan["sections"][0]["blocks"].append({"type": "diagram", "nodes": NODES, "edges": EDGES})
+    html = render_report(plan)
+    assert re.findall(r'<marker id="([^"]+)"', html) == ["vr-arrow-arch-0", "vr-arrow-arch-1"]
 
 
 # ---- diagram 2.0：正交圆角布线 / crossover halo / 几何 lint ------------------

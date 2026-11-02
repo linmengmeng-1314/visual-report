@@ -53,7 +53,7 @@ def _render_section(sec: dict, base_dir: Optional[Path], meta: dict) -> str:
         if meta.get("date"):
             parts.append(f'<span>{_esc(meta["date"])}</span>')
         meta_line = "".join(parts)
-        blocks = "".join(render_block(b, base_dir) for b in sec.get("blocks", []))
+        blocks = "".join(render_block(b, base_dir, f"{sec['id']}-{i}") for i, b in enumerate(sec.get("blocks", [])))
         return (
             f'<header id="{sid}" class="vr-hero"><div class="vr-hero-inner">'
             f"<h1>{_esc(sec['title'])}</h1>"
@@ -77,7 +77,7 @@ def _render_section(sec: dict, base_dir: Optional[Path], meta: dict) -> str:
     if sec.get("subtitle"):
         head += f'<p class="vr-section-subtitle">{_esc(sec["subtitle"])}</p>'
 
-    blocks = "".join(render_block(b, base_dir) for b in sec.get("blocks", []))
+    blocks = "".join(render_block(b, base_dir, f"{sec['id']}-{i}") for i, b in enumerate(sec.get("blocks", [])))
     return (
         f'<section id="{sid}" class="{cls}"><div class="{inner_cls}">'
         + (f"<header>{head}</header>" if head else "")
