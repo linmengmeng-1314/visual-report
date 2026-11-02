@@ -12,7 +12,7 @@ import jsonschema
 from jsonschema.exceptions import best_match
 
 from . import CHART_TYPES, LAYOUTS, SCHEMA_VERSION, THEMES
-from .diagram import direction_warnings, lint_diagram
+from .diagram import direction_warnings, lint_diagram, width_warnings
 
 _SCHEMAS_DIR = Path(__file__).resolve().parent.parent / "schemas"
 _SCHEMA_PATH = _SCHEMAS_DIR / "report.schema.json"
@@ -202,12 +202,10 @@ def plan_warnings(plan: dict) -> List[str]:
         uid = unit.get("id", "<missing>")
         for i, blk in enumerate(unit.get("blocks", [])):
             if blk.get("type") == "diagram":
-                out.extend(
-                    f"[diagram] {uid} 第 {i + 1} 个块: {w}"
-                    for w in direction_warnings(
-                        blk["nodes"], blk.get("edges", []), blk.get("direction", "lr")
-                    )
-                )
+                advise = direction_warnings(
+                    blk["nodes"], blk.get("edges", []), blk.get("direction", "lr")
+                ) + width_warnings(blk["nodes"], bool(unit.get("wide")))
+                out.extend(f"[diagram] {uid} 第 {i + 1} 个块: {a}" for a in advise)
     return out
 
 

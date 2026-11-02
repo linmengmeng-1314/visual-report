@@ -768,6 +768,29 @@ def render_diagram(nodes: List[dict], edges: List[dict], caption: str = "",
 # 几何 lint（diagram 2.0 第三子任务）
 # ---------------------------------------------------------------------------
 
+CONTENT_WIDTH = 860          # 报告正文栏宽（base.css --content-width）
+CONTENT_WIDTH_WIDE = 1100    # wide section 栏宽（--content-width-wide）
+
+
+def width_warnings(nodes: List[dict], wide: bool) -> List[str]:
+    """图宽超出排版栏宽（建议级）：超出会被等比缩小、文字变小。
+
+    报告纵向滚动免费、横向受限——复杂长链路优先纵向重排 at（配合 direction: "tb"），
+    或启用 section wide / 拆图；不建议依赖横向滚动（打印时会被裁切）。
+    """
+    if not nodes:
+        return []
+    w = PAD * 2 + (max(n["at"][0] for n in nodes) + 1) * CW
+    budget = CONTENT_WIDTH_WIDE if wide else CONTENT_WIDTH
+    if w > budget:
+        return [
+            f"图宽约 {w:.0f}px 超出栏宽 {budget}px，渲染将等比缩至 {budget / w:.0%}"
+            "——节点/标签文字会变小：建议纵向重排 at（长链路配合 direction: \"tb\"）、"
+            "启用 section wide，或拆分成多张图"
+        ]
+    return []
+
+
 def direction_warnings(nodes: List[dict], edges: List[dict], direction: str) -> List[str]:
     """主链方向与 direction 声明一致性（B1，建议级，不阻断渲染）。
 

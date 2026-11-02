@@ -122,6 +122,16 @@ def test_direction_warnings_vertical_chain_in_lr():
     assert not direction_warnings(NODES, EDGES, "lr"), "水平主链不误报"
 
 
+def test_width_warnings_over_budget():
+    """图宽超栏宽 → 建议级提示（等比缩放会让文字变小，优先纵向重排而非横滑）。"""
+    from visual_report.diagram import width_warnings
+    nodes5 = [{"id": f"n{i}", "label": "节点", "at": [i, 0]} for i in range(5)]  # ~1028px
+    assert width_warnings(nodes5, wide=False), "5 列约 1028px 超 860 栏宽应提示"
+    assert not width_warnings(nodes5, wide=True), "wide 版栏宽 1100px 内不提示"
+    nodes4 = [{"id": f"n{i}", "label": "节点", "at": [i, 0]} for i in range(4)]  # ~832px
+    assert not width_warnings(nodes4, wide=False), "4 列约 832px 在栏宽内"
+
+
 # ---- 边标签几何（用户实测反馈：胶囊压箭头线；短段时压两端节点盒） ----------
 
 from visual_report.diagram import _boxes_for, plan_diagram
