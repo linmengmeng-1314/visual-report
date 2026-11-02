@@ -132,6 +132,46 @@ def test_width_warnings_over_budget():
     assert not width_warnings(nodes4, wide=False), "4 列约 832px 在栏宽内"
 
 
+# ---- 第五波：胶囊 vs 胶囊、文字 vs 自身盒子（统一碰撞集收口） ---------------
+
+from visual_report.diagram import (  # noqa: E402
+    NODE_TEXT_MAXW, _rect_overlaps_rect, _text_width, _wrap_label,
+)
+
+
+def test_edge_labels_never_overlap_each_other():
+    """复现件 A：共享源节点的两条边，标签胶囊不得互压（placed 注册表收口）。"""
+    nodes = [
+        {"id": "src", "label": "源节点", "at": [0, 0]},
+        {"id": "m", "label": "主库", "at": [2, 0]},
+        {"id": "au", "label": "审计库", "at": [2, 1]},
+    ]
+    edges = [
+        {"from": "src", "to": "m", "label": "MyBatis-Plus 读写"},
+        {"from": "src", "to": "au", "label": "audit 全链路"},
+    ]
+    rects = [l["rect"] for l in plan_diagram(nodes, edges)["labels"].values()]
+    assert len(rects) == 2
+    for i in range(len(rects)):
+        for j in range(i + 1, len(rects)):
+            assert not _rect_overlaps_rect(rects[i], rects[j], 2), f"标签 {i} 与 {j} 重叠"
+
+
+def test_node_label_wraps_by_measured_width():
+    """复现件 B：显式 \\n 行内超宽需按实测宽度二次断行（宽度模型，非字符数）。"""
+    lines = _wrap_label("Redis\n操作人真名缓存 2h/15min")
+    assert lines[0] == "Redis"
+    for ln in lines:
+        assert _text_width(ln, 14) <= NODE_TEXT_MAXW, f"行超宽：{ln!r}"
+
+
+def test_lint_node_text_overflow():
+    """超框 lint：分行后仍超盒高行数的标签被拦（旧实现静默截断丢信息）。"""
+    nodes = [{"id": "cfg", "label": "操作人真实姓名缓存与审计策略中心 dev/test/prod", "at": [0, 0]}]
+    issues = lint_diagram(nodes, [])
+    assert any("文字超框" in i for i in issues)
+
+
 # ---- 边标签几何（用户实测反馈：胶囊压箭头线；短段时压两端节点盒） ----------
 
 from visual_report.diagram import _boxes_for, plan_diagram

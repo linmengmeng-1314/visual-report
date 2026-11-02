@@ -102,15 +102,38 @@ FOCUS_JS = """(function(){
 })();"""
 
 
-def _wrap_label(label: str, width: int = 9) -> List[str]:
-    """CJK 友好的标签换行：显式 \\n 优先，其次按宽度截断，最多 3 行。"""
-    if "\n" in label:
-        lines = label.split("\n")
-    else:
-        lines = [label[i:i + width] for i in range(0, len(label), width)]
-    if len(lines) > 3:
-        lines = lines[:3]
-        lines[-1] = lines[-1][: width - 1] + "…"
+NODE_TEXT_MAXW = 112        # 节点盒内文字可用宽度（BOX_W 136 − 两侧留白）
+NODE_TEXT_FS = 14           # 节点文字字号（与渲染一致）
+NODE_TEXT_MAX_LINES = 3     # BOX_H 62 内的行数上限（超出由 lint 报「文字超框」）
+
+
+def _break_line(line: str, max_px: float, fs: int) -> List[str]:
+    """单行按实测宽度断行：优先在空格/斜杠/连字符处断，无处可断才硬切。"""
+    out, cur = [], ""
+    for ch in line:
+        if cur and _text_width(cur + ch, fs) > max_px:
+            cut = max(cur.rfind(" "), cur.rfind("/"), cur.rfind("-"))
+            if cut > 0:
+                out.append(cur[: cut + 1])
+                cur = cur[cut + 1:] + ch
+            else:
+                out.append(cur)
+                cur = ch
+        else:
+            cur += ch
+    if cur:
+        out.append(cur)
+    return out
+
+
+def _wrap_label(label: str) -> List[str]:
+    """节点标签分行：显式 \\n 先分，每行再按实测宽度二次断行（与 _text_width 同一宽度模型）。
+
+    行数超盒高容量不做静默截断——保留完整内容，由 lint「文字超框」提示作者缩短。
+    """
+    lines: List[str] = []
+    for ln in label.split("\n"):
+        lines.extend(_break_line(ln, NODE_TEXT_MAXW, NODE_TEXT_FS) or [""])
     return lines
 
 
@@ -264,6 +287,14 @@ def _rounded_path(points, radius: float = CORNER_R) -> str:
 
 def _cell_center(col: int, row: int) -> Tuple[float, float]:
     return PAD + col * CW + CW / 2, PAD + row * CH + CH / 2
+
+
+def _rect_overlaps_rect(a: dict, b: dict, clearance: float) -> bool:
+    """两矩形（含间隙）是否相交——标签胶囊互压判定（放置与 lint 共用）。"""
+    return (a["x"] - clearance < b["x"] + b["w"]
+            and a["x"] + a["w"] + clearance > b["x"]
+            and a["y"] - clearance < b["y"] + b["h"]
+            and a["y"] + a["h"] + clearance > b["y"])
 
 
 def _rect_overlaps_box(rect: dict, box: dict, clearance: float) -> bool:
@@ -556,6 +587,7 @@ def plan_diagram(nodes: List[dict], edges: List[dict]) -> dict:
 
     # 边标签：在最长线段上沿段滑动，避开交叉点与不相关边（水平段优先）
     labels: Dict[int, dict] = {}
+    placed: List[dict] = []   # 已落位标签胶囊注册表（第五波：胶囊 vs 胶囊进碰撞集）
     routed = list(zip(edges, routes))
     for idx, e in enumerate(edges):
         if not e.get("label"):
@@ -588,6 +620,9 @@ def plan_diagram(nodes: List[dict], edges: List[dict]) -> dict:
             for b in boxes.values():
                 if _rect_overlaps_box(rect, b, LABEL_CLEARANCE):
                     return False
+            for r2 in placed:
+                if _rect_overlaps_rect(rect, r2, LABEL_CLEARANCE):
+                    return False
             return True
 
         def corridor_free(rect):
@@ -598,6 +633,9 @@ def plan_diagram(nodes: List[dict], edges: List[dict]) -> dict:
                         return False
             for b in boxes.values():
                 if _rect_overlaps_box(rect, b, LABEL_CLEARANCE):
+                    return False
+            for r2 in placed:
+                if _rect_overlaps_rect(rect, r2, LABEL_CLEARANCE):
                     return False
             return True
 
@@ -675,6 +713,7 @@ def plan_diagram(nodes: List[dict], edges: List[dict]) -> dict:
             else:
                 chosen = make_label(p[0] + 8, (p[1] + q[1]) / 2 + 4, "start")
         labels[idx] = chosen
+        placed.append(chosen["rect"])
 
     return {"routes": list(zip(edges, routes)), "labels": labels, "halos": halos,
             "width": width, "height": height}
@@ -862,6 +901,13 @@ def lint_diagram(nodes: List[dict], edges: List[dict]) -> List[str]:
                               f"（下限 {MIN_SEGMENT}px）— 请调整节点网格位置")
                 break
 
+    for n in nodes:
+        n_lines = _wrap_label(n["label"])
+        if len(n_lines) > NODE_TEXT_MAX_LINES:
+            issues.append(
+                f"[diagram-geo/文字超框] 节点「{n['id']}」标签分 {len(n_lines)} 行，"
+                f"超过盒高容量 {NODE_TEXT_MAX_LINES} 行 — 请缩短 label 或用 \\n 手工分行")
+
     for idx, lab in plan["labels"].items():
         e = routes[idx][0]
         for b in boxes.values():
@@ -880,4 +926,12 @@ def lint_diagram(nodes: List[dict], edges: List[dict]) -> List[str]:
                         f"「{lab['text']}」压到边「{other['from']}」→「{other['to']}」的线段"
                         "— 请缩短标签或调整节点位置")
                     break
+
+    lab_items = list(plan["labels"].values())
+    for i in range(len(lab_items)):
+        for j in range(i + 1, len(lab_items)):
+            if _rect_overlaps_rect(lab_items[i]["rect"], lab_items[j]["rect"], LABEL_CLEARANCE):
+                issues.append(
+                    f"[diagram-geo/标签压标签] 边标签「{lab_items[i]['text']}」与"
+                    f"「{lab_items[j]['text']}」重叠 — 请缩短标签或调整节点位置")
     return issues
