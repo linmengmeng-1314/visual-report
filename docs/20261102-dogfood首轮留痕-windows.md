@@ -83,7 +83,7 @@ PASS——证明旧 lint 拦不住；已内联为 test_diagram.py 回归用例�
 2. 渲染产物的 id 应从**稳定标识**（块 ID）派生，与 SKILL.md"稳定 ID"哲学一致，
    跨修订 diff 也更干净。
 
-## Backlog（发现未实施）
+## Backlog（发现未实施）——B1~B4 全部闭环：B1/B2/B3 已实施，B4 根因闭环（处置见条目）
 
 ### B1 主链方向与 direction 声明一致性 lint（dogfood 反馈 D）——✅ 已实施（同日，`c5a3c79`）
 
@@ -128,14 +128,21 @@ PASS——证明旧 lint 拦不住；已内联为 test_diagram.py 回归用例�
   失败按契约转 ReviseError（旧产物保留），自检异常在各入口都表现为友好报错。
   **backlog 仅余 B4（环境项，非本仓库）。**
 
-### B4（环境侧，非本仓库）uv ↔ setuptools 本地构建失败
+### B4（环境侧，非本仓库）uv ↔ setuptools 本地构建失败——✅ 根因闭环（同日）
 
 - 现象：本机 `uv pip install -e .`（乃至任何 setuptools 本地包，最小纯 setuptools 包
   复现）失败：`expected value at line 1 column 1` / 响应文件非 UTF-8；uv 0.13.6 依旧。
-- 已排除：visual-report 自身（最小包同样失败）、setuptools 本体（直调 hook 输出正常）、
-  uv 版本、缓存。
-- 疑似方向：安全软件干扰 uv 构建临时文件。本机绕法：`.pth` 指向仓库（editable 等效）。
-- 动作项：向 uv 提 issue / 排查本机杀软。
+- **根因（字节级实证）**：毫秒级轮询器抢在 uv 清理前捕获到被拦截的响应文件——
+  内容为 8KB 块对齐的 `%TSD-Header-###%` 加密桩（趋势科技系隔离标记），桩内嵌有原产物
+  文件名 `visual_report-0.2.0-py3-none-any.whl`。本机运行着 TmListen / NTRtScan /
+  PccNTMon（趋势 OfficeScan 全家桶）+ AisEsmEdr（亚信安全 EDR，趋势中国产品线）——
+  **企业杀软实时行为监控把「子进程在临时目录写的构建响应/产物文件」替换为隔离桩**，
+  uv 读到二进制垃圾。这也解释了：换缓存目录无效（行为监控不挑目录）、
+  PYTHONUTF8/PYTHONIOENCODING 无效（物理替换而非编码问题）、直调 hook 正常
+  （未触发同一行为特征）、任何 setuptools 包都中招（拦截的是行为模式）。
+- 处置（分层）：`.pth` 兜底已就位（skill 使用零影响）；根治 = 找 IT 在亚信安全控制台
+  给 `uv.exe`/`python.exe` 或 `D:\install\uv\cache` 加白；可选：向 astral-shuv 提 issue
+  （素材已齐，建议 uv 对非 UTF-8 响应文件嗅探常见 AV 桩头、给出定向提示）。
 
 ## 经验沉淀
 
