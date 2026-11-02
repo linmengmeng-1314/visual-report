@@ -12,7 +12,7 @@
   8. 体积门禁（ADR-006：默认目标 2MB / 硬上限 5MB）→ 超目标 WARNING，超上限 FAILED
 
 用法：
-    python scripts/inspect.py output/visual-report.html [--json qa/static-check.json]
+    python scripts/static_check.py output/visual-report.html [--json qa/static-check.json]
 退出码：0 = PASS，1 = WARNING，2 = FAILED。
 """
 
