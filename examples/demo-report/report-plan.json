@@ -52,10 +52,10 @@
             { "id": "gateway", "label": "统一接入网关", "at": [1, 0], "kind": "service" },
             { "id": "router", "label": "分流引擎\n14 条规则", "at": [2, 0], "kind": "service" },
             { "id": "bot", "label": "意图识别机器人\nTOP 200", "at": [3, 0], "kind": "service" },
-            { "id": "agent", "label": "人机协作台", "at": [3, 1], "kind": "service" },
+            { "id": "agent", "label": "人机协作台", "at": [2, 1], "kind": "service" },
             { "id": "ticket", "label": "工单库", "at": [4, 0], "kind": "storage" },
             { "id": "kb", "label": "知识库", "at": [4, 1], "kind": "storage" },
-            { "id": "monitor", "label": "监控看板", "at": [2, 1], "kind": "external" }
+            { "id": "monitor", "label": "监控看板", "at": [3, 1], "kind": "external" }
           ],
           "edges": [
             { "from": "app", "to": "gateway" },
