@@ -2,7 +2,7 @@
 
 **An AI-native engine for editable visual reports and slide decks**: turns Markdown and project materials into beautiful **single-file offline HTML** — reports and presentations with charts, architecture diagrams, KPIs and timelines. Double-click to open, works with zero network, email it or print to PDF.
 
-[中文文档](README.md) | [Online demos](examples/)
+[中文文档](README.md) | [Live report demo](https://linmengmeng-1314.github.io/visual-report/examples/demo-report/output/visual-report.html) | [Live deck demo](https://linmengmeng-1314.github.io/visual-report/examples/demo-deck/output/visual-deck.html)
 
 ![hero](docs/screenshots/hero.png)
 

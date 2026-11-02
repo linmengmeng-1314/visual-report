@@ -12,11 +12,11 @@
 
 ![data](docs/screenshots/data.png)
 
-*报告模式示例：[demo-report](examples/demo-report/output/visual-report.html)（企业季度报告，33KB 单文件）*
+*报告模式示例：[在线打开 demo-report](https://linmengmeng-1314.github.io/visual-report/examples/demo-report/output/visual-report.html)（企业季度报告，33KB 单文件，另可[查看仓库源文件](examples/demo-report/output/visual-report.html)）*
 
 ![deck](docs/screenshots/deck.png)
 
-*幻灯片模式示例：[demo-deck](examples/demo-deck/output/visual-deck.html)（15 分钟宣讲版，方向键翻页 / F 全屏 / O 总览 / N 演讲备注）*
+*幻灯片模式示例：[在线打开 demo-deck](https://linmengmeng-1314.github.io/visual-report/examples/demo-deck/output/visual-deck.html)（15 分钟宣讲版，方向键翻页 / F 全屏 / O 总览 / N 演讲备注，[仓库源文件](examples/demo-deck/output/visual-deck.html)）*
 
 ## 核心特性
 
