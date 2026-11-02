@@ -41,7 +41,13 @@ def _url(path: Path) -> str:
 
 
 def _find_system_browser():
-    """系统浏览器可执行文件：Edge 优先（Windows 上 Chrome 常因管理员终端/常驻实例不可用）。"""
+    """系统浏览器可执行文件：Edge 优先。
+
+    实测（2026-11-02 Windows 办公机，见 docs dogfood 留痕）：Chrome 从提权（管理员）
+    终端派生时无头截图必失败（隔离 profile / no-sandbox 均无效）；Edge 不受提权影响。
+    普通权限下 Chrome 需配合 --user-data-dir 隔离 profile（常驻实例占默认 profile 时
+    新进程只转发 URL 不截图）。
+    """
     candidates = []
     # Windows 环境变量查找大小写不敏感；x86 路径的真实变量名是 ProgramFiles(x86)
     for env in ("PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA"):
@@ -74,8 +80,12 @@ def degraded_screenshots(html_path: Path, shot_dir: Path):
         return None
     shot_dir.mkdir(parents=True, exist_ok=True)
     out = shot_dir / "degraded-desktop.png"
+    # 隔离 profile 必须：常驻 Chrome 占着默认 profile 时，新进程只把 URL 转发给已有实例
+    # 然后退出、不写截图文件（实测普通权限下也复现）
+    profile = shot_dir / ".degraded-profile"
     subprocess.run(
-        [browser, "--headless", f"--screenshot={out}", "--window-size=1280,11000", _url(html_path)],
+        [browser, "--headless", f"--screenshot={out}", "--window-size=1280,11000",
+         f"--user-data-dir={profile}", _url(html_path)],
         capture_output=True, timeout=60,
     )
     for _ in range(30):  # 落盘延迟：轮询至多 ~15s
