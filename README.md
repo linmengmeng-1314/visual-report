@@ -139,7 +139,7 @@ text（Markdown）/ heading / list / quote / callout / code / image（自动 bas
 
 ```bash
 python -m venv .venv && .venv/bin/pip install -e ".[dev]"
-.venv/bin/pytest                       # 62 个测试
+.venv/bin/pytest                       # 全量测试（schema 用例集 + golden 渲染基准）
 UPDATE_GOLDEN=1 .venv/bin/pytest       # 渲染行为有意变更时更新 golden 基准
 ```
 

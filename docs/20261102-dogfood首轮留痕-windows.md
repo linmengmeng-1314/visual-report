@@ -30,6 +30,14 @@ visual-report 在家用 Mac 开发至 Phase 4b 全可用。2026-11-02 起在办�
 | label 限长没写进 reference | 只藏在 schema description 里 | block-reference 明确节点 ≤40 / 边 ≤20、按字符数计中英文同计 | `06a31fc` |
 | 示例产物落后于渲染器 | —— | 重渲染同步 | `e7b571b` |
 
+### 第三波：审查回环（同日，dogfood 会话复审实测后回传）
+
+| 问题 | 根因 | 修复 | commit |
+|---|---|---|---|
+| 同块多处违规只报一处（复审新发现，B5） | jsonschema 把所有不匹配变体的错误**平铺**进 context，best_match 只返回最相关一片——同变体的其他违规被吞，修一个验一次再冒一个，一轮返工变两轮 | best_match 只用来「选变体」，按 schema_path 首段（变体下标）过滤收全该变体叶子；其余变体的 type/const 噪音仍挡在外面 | `7c094dd` |
+| plan/HTML 路径错或 JSON 非法时裸 traceback（复审 nit） | 入口未包裹文件读取 | validate / render / to_slides / preview / static_check 五个入口一行式友好提示 | `06035dd` |
+| README 测试数一天内过期两次（62 → 65 → 66） | 写死数字没有维护触发点 | 改为不写数字的表述 | 本文件同笔提交 |
+
 ### 值得记下的复盘：dup-id 的两次修复
 
 第一次（dogfood 会话就地修）：模块级计数器 `vr-arrow-{n}`。**被自己的测试拦下**——
@@ -63,6 +71,8 @@ visual-report 在家用 Mac 开发至 Phase 4b 全可用。2026-11-02 起在办�
 - 现状：渲染器若产出非法 HTML（如重复 id），靠 static_check 兜底拦截——分层有效，
   但"渲染器自己产出非法产物"理想态应从源头杜绝。
 - 建议：render 主流程末尾加轻量 assert（同页 id 唯一性），违反即抛错不落盘。
+- 增补论据（2026-11-02 复审）：render 期若 assert 同页 id 唯一，dup-id 这类问题连
+  static_check 都到不了——兜底有效，但每层都不应产出下一层才能发现的问题。**优先级上调**。
 
 ### B4（环境侧，非本仓库）uv ↔ setuptools 本地构建失败
 
