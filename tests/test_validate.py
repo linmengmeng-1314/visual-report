@@ -65,3 +65,13 @@ def test_missing_title_rejected(good_plan):
     del good_plan["meta"]["title"]
     errors = validate_report(good_plan)
     assert errors != []
+
+
+def test_schema_error_reports_field_level_path(good_plan):
+    """oneOf 聚合错误须下钻到叶子：超长节点 label 报精确路径与上限，而非「整块不匹配」倾倒。"""
+    good_plan["sections"][1]["blocks"].append(
+        {"type": "diagram", "nodes": [{"id": "n", "label": "超" * 41, "at": [0, 0]}], "edges": []}
+    )
+    errors = validate_report(good_plan)
+    hit = [e for e in errors if "label" in e]
+    assert hit and "实际 41 > 上限 40" in hit[0]

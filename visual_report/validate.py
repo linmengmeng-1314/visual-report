@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 import jsonschema
+from jsonschema.exceptions import best_match
 
 from . import CHART_TYPES, LAYOUTS, SCHEMA_VERSION, THEMES
 from .diagram import lint_diagram
@@ -44,6 +45,30 @@ def _registry_with_report_schema():
     )
 
 
+def _schema_errors(validator, plan: dict) -> List[str]:
+    """Schema 错误统一格式化：oneOf/anyOf 聚合错误下钻到最相关叶子（best_match）。
+
+    报「哪个字段、违反什么约束」（如 sections/2/blocks/0/nodes/3/label: ... too long (47 > 40)），
+    而非「整块 is not valid under any of the given schemas」——后者不指路，迫使 Agent 逐字段盲猜。
+    """
+    rows = []
+    for err in validator.iter_errors(plan):
+        leaf = best_match([err])
+        msg = leaf.message
+        if leaf.validator == "maxLength":  # 默认消息不带数量，补上「实际 N > 上限 M」便于直接定位
+            msg += f"（实际 {len(leaf.instance)} > 上限 {leaf.validator_value}）"
+        rows.append((list(leaf.absolute_path), msg))
+    rows.sort(key=lambda r: r[0])
+    errors, seen = [], set()
+    for path, msg in rows:
+        loc = "/".join(str(p) for p in path) or "<root>"
+        line = f"[schema] {loc}: {msg}"
+        if line not in seen:
+            seen.add(line)
+            errors.append(line)
+    return errors
+
+
 def validate_report(plan: dict) -> List[str]:
     """校验 report-plan。返回错误列表（空列表 = 通过）。
 
@@ -56,10 +81,7 @@ def validate_report(plan: dict) -> List[str]:
     errors: List[str] = []
     schema = load_schema()
 
-    for err in sorted(jsonschema.Draft7Validator(schema).iter_errors(plan), key=lambda e: list(e.absolute_path)):
-        path = "/".join(str(p) for p in err.absolute_path) or "<root>"
-        errors.append(f"[schema] {path}: {err.message}")
-
+    errors.extend(_schema_errors(jsonschema.Draft7Validator(schema), plan))
     if errors:
         return errors  # Schema 不过，后续检查无意义
 
@@ -71,9 +93,7 @@ def validate_slide(plan: dict) -> List[str]:
     """校验 slide-plan（幻灯片模式）。语义检查与报告共用。"""
     errors: List[str] = []
     validator = jsonschema.Draft7Validator(load_slide_schema(), registry=_registry_with_report_schema())
-    for err in sorted(validator.iter_errors(plan), key=lambda e: list(e.absolute_path)):
-        path = "/".join(str(p) for p in err.absolute_path) or "<root>"
-        errors.append(f"[schema] {path}: {err.message}")
+    errors.extend(_schema_errors(validator, plan))
     if errors:
         return errors
     _semantic_checks(plan.get("slides", []), "slide", errors)
