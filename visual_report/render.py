@@ -6,6 +6,7 @@
 import argparse
 import html
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Optional
@@ -86,12 +87,22 @@ def _render_section(sec: dict, base_dir: Optional[Path], meta: dict) -> str:
     )
 
 
-def render_report(plan: dict, base_dir: Optional[Path] = None) -> str:
-    """校验 + 渲染（按结构自动路由报告/幻灯片）。校验失败抛 ValidationError（不产出文件）。"""
-    if "slides" in plan:
-        from .deck import render_deck
-        return render_deck(plan, base_dir)
+def _self_check(html_str: str) -> None:
+    """渲染期自检（B3）：同页 DOM id 唯一性。违反即抛错、不产出文件——渲染器自身的
+    缺陷在第一现场拦截，不应流到 static_check（第二层）才被发现甚至交付。
 
+    正则即可满足：产物由本渲染器生成、标记形态可控（仅匹配属性位 id="…"，
+    data-node-id 之类连字符前缀不会被误伤）。"""
+    seen, dupes = set(), []
+    for dom_id in re.findall(r' id="([^"]+)"', html_str):
+        if dom_id in seen and dom_id not in dupes:
+            dupes.append(dom_id)
+        seen.add(dom_id)
+    if dupes:
+        raise ValueError(f"渲染器自检失败（渲染 bug，请提 issue）：重复 DOM id——{'、'.join(dupes)}")
+
+
+def _render_report_html(plan: dict, base_dir: Optional[Path]) -> str:
     validate_report_or_raise(plan)
 
     meta = plan["meta"]
@@ -134,6 +145,20 @@ def render_report(plan: dict, base_dir: Optional[Path] = None) -> str:
 </body>
 </html>
 """
+
+
+def render_report(plan: dict, base_dir: Optional[Path] = None) -> str:
+    """校验 + 渲染（按结构自动路由报告/幻灯片）。校验失败抛 ValidationError（不产出文件）。
+
+    两条路径产出后统一过 _self_check（B3 渲染期自检）。
+    """
+    if "slides" in plan:
+        from .deck import render_deck
+        html = render_deck(plan, base_dir)
+    else:
+        html = _render_report_html(plan, base_dir)
+    _self_check(html)
+    return html
 
 
 def main(argv=None) -> int:

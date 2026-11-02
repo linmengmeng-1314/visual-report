@@ -75,3 +75,12 @@ def test_static_check_catches_size_limit(tmp_path, monkeypatch):
     result = static_check.inspect_html(big)
     assert result["status"] == "FAILED"
     assert any("[size]" in e for e in result["errors"])
+
+
+def test_render_self_check_duplicate_ids():
+    """B3：渲染期自检拦重复 DOM id——渲染器缺陷在产出前抛错，不等 static_check 兜底。"""
+    from visual_report.render import _self_check
+    with pytest.raises(ValueError, match="重复 DOM id"):
+        _self_check('<div id="a"></div><p id="a"></p>')
+    # 合法产物不抛；data-node-id 等连字符前缀属性不误伤
+    _self_check('<div id="a"></div><p id="b"></p><g data-node-id="a"></g>')
