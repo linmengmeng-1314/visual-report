@@ -69,7 +69,7 @@ RUNTIME_JS = """(function(){
   });
 
   // 深链 #/N
-  var m = location.hash.match(/^#\\/(\d+)/);
+  var m = location.hash.match(/^#\\/(\\d+)/);
   fit(); go(m ? parseInt(m[1], 10) : 0, false);
 })();"""
 
