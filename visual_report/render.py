@@ -163,7 +163,8 @@ def main(argv=None) -> int:
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html_str, encoding="utf-8")
+    # 固定 LF 换行：Windows 文本模式默认翻成 CRLF，跨平台产物需字节一致（ADR-001）
+    out.write_text(html_str, encoding="utf-8", newline="\n")
     size_kb = out.stat().st_size / 1024
     print(f"✓ {out} ({size_kb:.0f} KB, theme={plan['meta'].get('theme', 'minimal')})")
     return 0

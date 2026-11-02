@@ -58,7 +58,7 @@ def main() -> int:
         themed = copy.deepcopy(plan)
         themed["meta"]["theme"] = theme
         out = out_dir / f"preview-{theme}.html"
-        out.write_text(render_report(themed, plan_path.parent), encoding="utf-8")
+        out.write_text(render_report(themed, plan_path.parent), encoding="utf-8", newline="\n")
         produced.append((theme, out))
 
     for theme, out in produced:

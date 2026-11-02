@@ -105,7 +105,7 @@ class RevisionManager:
     def _save_revisions(self, data: dict) -> None:
         self.revisions_file.parent.mkdir(parents=True, exist_ok=True)
         self.revisions_file.write_text(
-            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n"
         )
 
     # ---- 主流程 ----
@@ -125,7 +125,8 @@ class RevisionManager:
         html_str = render_report(new_plan, base_dir or self.plan_path.parent)
         tmp_html = self.output_html.with_suffix(".tmp.html")
         tmp_html.parent.mkdir(parents=True, exist_ok=True)
-        tmp_html.write_text(html_str, encoding="utf-8")
+        # LF 固定换行：与渲染主产物字节一致（ADR-001；Windows 文本模式默认翻成 CRLF）
+        tmp_html.write_text(html_str, encoding="utf-8", newline="\n")
 
         # 3. 第二层质检（临时产物）
         sys.path.insert(0, str(REPO / "scripts"))
@@ -153,14 +154,14 @@ class RevisionManager:
         if self.output_html.exists():
             self.snap_dir.mkdir(parents=True, exist_ok=True)
             (self.snap_dir / f"v{prev_version}.html").write_text(
-                self.output_html.read_text(encoding="utf-8"), encoding="utf-8"
+                self.output_html.read_text(encoding="utf-8"), encoding="utf-8", newline="\n"
             )
             if not old_snapshot.is_file():
                 # 首次修订时没有 plan 快照，从历史无法恢复——记录提示
                 pass
         self.snap_dir.mkdir(parents=True, exist_ok=True)
         (self.snap_dir / f"v{prev_version + 1}-plan.json").write_text(
-            json.dumps(new_plan, ensure_ascii=False, indent=2), encoding="utf-8"
+            json.dumps(new_plan, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n"
         )
         tmp_html.replace(self.output_html)
 
@@ -193,9 +194,9 @@ class RevisionManager:
         if not plan_snap.is_file():
             raise ReviseError(f"v{target} 无 plan 快照（可回滚版本：{plans}）")
 
-        self.plan_path.write_text(plan_snap.read_text(encoding="utf-8"), encoding="utf-8")
+        self.plan_path.write_text(plan_snap.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
         if html_snap.is_file() and self.output_html.exists():
-            self.output_html.write_text(html_snap.read_text(encoding="utf-8"), encoding="utf-8")
+            self.output_html.write_text(html_snap.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
 
         revisions.append({
             "version": revisions[-1]["version"] + 1,
