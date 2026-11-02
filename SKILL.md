@@ -35,7 +35,7 @@ description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图�
 
 预览真实性规则（ADR-010，强制）：预览必须是**真实内容渲染出的完整页面**；禁止占位文本；禁止在预览页面上出现 "Option A / preview / 模板" 等流程字样；用户挑的是审美，不是参数。
 
-若用户系统无 Python 依赖：`pip install markdown-it-py jsonschema`（仅两个轻量依赖）。
+若用户系统无 Python 依赖：`pip install markdown-it-py jsonschema`（仅两个轻量依赖）；Python 为 uv 管理或 externally-managed（PEP 668）时改用 `uv pip install --system --break-system-packages markdown-it-py jsonschema`。
 
 ## 主题选择
 
