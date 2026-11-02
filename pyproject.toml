@@ -4,7 +4,7 @@ version = "0.2.0"
 description = "AI-driven visual report generator: structured plans → deterministic rendering → single-file offline HTML"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = "MIT"
 dependencies = [
     "markdown-it-py>=3.0",
     "jsonschema>=4.0",
@@ -24,7 +24,7 @@ input = [
 
 
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
