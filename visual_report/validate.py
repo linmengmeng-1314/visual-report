@@ -45,19 +45,39 @@ def _registry_with_report_schema():
     )
 
 
-def _schema_errors(validator, plan: dict) -> List[str]:
-    """Schema 错误统一格式化：oneOf/anyOf 聚合错误下钻到最相关叶子（best_match）。
+def _leaves(err) -> list:
+    """收集错误子树全部叶子错误（无 context 即叶子）。"""
+    if not err.context:
+        return [err]
+    out = []
+    for sub in err.context:
+        out.extend(_leaves(sub))
+    return out
 
-    报「哪个字段、违反什么约束」（如 sections/2/blocks/0/nodes/3/label: ... too long (47 > 40)），
-    而非「整块 is not valid under any of the given schemas」——后者不指路，迫使 Agent 逐字段盲猜。
+
+def _schema_errors(validator, plan: dict) -> List[str]:
+    """Schema 错误统一格式化：oneOf/anyOf 聚合错误下钻到最相关变体（best_match）。
+
+    jsonschema 把所有不匹配变体的错误平铺进 context，best_match 只返回最相关一片——
+    同块的其他违规会被吞掉（修一个、验一次、再冒一个，返工翻倍）；而无脑收全
+    又会把其余变体的 type/const 噪音放进来。折中：best_match 只用来「选变体」，
+    按 schema_path 首段（变体下标）过滤，收全该变体的所有叶子。
+
+    输出形如 sections/2/blocks/0/nodes/3/label: ... too long（实际 47 > 上限 40）。
     """
     rows = []
     for err in validator.iter_errors(plan):
-        leaf = best_match([err])
-        msg = leaf.message
-        if leaf.validator == "maxLength":  # 默认消息不带数量，补上「实际 N > 上限 M」便于直接定位
-            msg += f"（实际 {len(leaf.instance)} > 上限 {leaf.validator_value}）"
-        rows.append((list(leaf.absolute_path), msg))
+        best = best_match([err])
+        if err.context and best.schema_path:
+            variant = best.schema_path[0]
+            picked = [l for l in _leaves(err) if l.schema_path and l.schema_path[0] == variant]
+        else:
+            picked = [best]
+        for leaf in picked:
+            msg = leaf.message
+            if leaf.validator == "maxLength":  # 默认消息不带数量，补上「实际 N > 上限 M」便于直接定位
+                msg += f"（实际 {len(leaf.instance)} > 上限 {leaf.validator_value}）"
+            rows.append((list(leaf.absolute_path), msg))
     rows.sort(key=lambda r: r[0])
     errors, seen = [], set()
     for path, msg in rows:

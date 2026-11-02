@@ -75,3 +75,19 @@ def test_schema_error_reports_field_level_path(good_plan):
     errors = validate_report(good_plan)
     hit = [e for e in errors if "label" in e]
     assert hit and "实际 41 > 上限 40" in hit[0]
+
+
+def test_schema_errors_report_all_violations_in_block(good_plan):
+    """同块多处违规须一次全报（B5）：节点与边 label 同时超限，两处都要报，且不带其他变体噪音。"""
+    good_plan["sections"][1]["blocks"].append({
+        "type": "diagram",
+        "nodes": [
+            {"id": "n1", "label": "超" * 41, "at": [0, 0]},
+            {"id": "n2", "label": "节点", "at": [1, 0]},
+        ],
+        "edges": [{"from": "n1", "to": "n2", "label": "边" * 21}],
+    })
+    errors = validate_report(good_plan)
+    assert any("实际 41 > 上限 40" in e for e in errors)       # 节点 label
+    assert any("实际 21 > 上限 20" in e for e in errors)       # 边 label
+    assert not any("is not valid under" in e for e in errors)  # 其余变体噪音不回流
