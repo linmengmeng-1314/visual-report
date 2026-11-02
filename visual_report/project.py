@@ -112,7 +112,7 @@ class RevisionManager:
     def apply(self, note: str, base_dir: Optional[Path] = None) -> dict:
         """校验 + 渲染 + 质检，全过才落盘新产物与历史；失败抛 ReviseError（旧产物保留）。"""
         from .render import render_report
-        from .validate import validate_report
+        from .validate import ValidationError, validate_report
 
         new_plan = json.loads(self.plan_path.read_text(encoding="utf-8"))
 
@@ -121,8 +121,11 @@ class RevisionManager:
         if errors:
             raise ReviseError("第一层校验失败，未渲染（旧 HTML 保留）：\n  - " + "\n  - ".join(errors))
 
-        # 2. 渲染到临时文件（不碰正式产物）
-        html_str = render_report(new_plan, base_dir or self.plan_path.parent)
+        # 2. 渲染到临时文件（不碰正式产物；渲染异常按契约转 ReviseError，旧产物保留）
+        try:
+            html_str = render_report(new_plan, base_dir or self.plan_path.parent)
+        except (ValidationError, ValueError, FileNotFoundError) as e:
+            raise ReviseError(f"渲染失败，未生成文件（旧 HTML 保留）：{e}")
         tmp_html = self.output_html.with_suffix(".tmp.html")
         tmp_html.parent.mkdir(parents=True, exist_ok=True)
         # LF 固定换行：与渲染主产物字节一致（ADR-001；Windows 文本模式默认翻成 CRLF）
