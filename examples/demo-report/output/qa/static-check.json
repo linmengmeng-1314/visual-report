@@ -1,7 +1,7 @@
 {
-  "file": "examples/demo-report/output/visual-report.html",
+  "file": "examples\\demo-report\\output\\visual-report.html",
   "status": "PASS",
-  "sizeBytes": 34085,
+  "sizeBytes": 43219,
   "sizeState": "ok",
   "errors": [],
   "warnings": [],
