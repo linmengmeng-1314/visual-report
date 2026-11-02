@@ -19,6 +19,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from visual_report.validate import validate_plan  # noqa: E402
 
+# 中文 Windows 控制台重定向输出时按 GBK 编码，✓/✗ 等符号会触发 UnicodeEncodeError——统一切 UTF-8（Mac/Linux 已是 UTF-8，此段无操作）
+for _s in (sys.stdout, sys.stderr):
+    _rc = getattr(_s, "reconfigure", None)
+    if _rc and getattr(_s, "encoding", "").lower().replace("-", "") != "utf8":
+        _rc(encoding="utf-8")
+
 
 def _sentences(md_text: str, limit: int = 4) -> list:
     """从 Markdown 提取前 N 个要点：优先列表项，其次按句号切分。"""

@@ -22,6 +22,12 @@ import sys
 import urllib.parse
 from pathlib import Path
 
+# 中文 Windows 控制台重定向输出时按 GBK 编码，✓/✗ 等符号会触发 UnicodeEncodeError——统一切 UTF-8（Mac/Linux 已是 UTF-8，此段无操作）
+for _s in (sys.stdout, sys.stderr):
+    _rc = getattr(_s, "reconfigure", None)
+    if _rc and getattr(_s, "encoding", "").lower().replace("-", "") != "utf8":
+        _rc(encoding="utf-8")
+
 VIEWPORTS = [("desktop", 1280, 900), ("mobile", 375, 812)]
 
 

@@ -22,6 +22,12 @@ import json
 import sys
 from pathlib import Path
 
+# 中文 Windows 控制台重定向输出时按 GBK 编码，✓/✗ 等符号会触发 UnicodeEncodeError——统一切 UTF-8（Mac/Linux 已是 UTF-8，此段无操作）
+for _s in (sys.stdout, sys.stderr):
+    _rc = getattr(_s, "reconfigure", None)
+    if _rc and getattr(_s, "encoding", "").lower().replace("-", "") != "utf8":
+        _rc(encoding="utf-8")
+
 MAX_TABLE_ROWS = 12          # 表格预览行数（超出截断并注明）
 MAX_TEXT_CHARS = 8000        # 单文件文本上限（素材摘要不是全文搬运）
 NUMERIC_SAMPLE = 8           # 数值列检测的采样行数
