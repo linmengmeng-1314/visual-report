@@ -19,7 +19,11 @@
 
 import argparse
 import json
+import os
+import shutil
+import subprocess
 import sys
+import time
 import urllib.parse
 from pathlib import Path
 
@@ -34,6 +38,51 @@ VIEWPORTS = [("desktop", 1280, 900), ("mobile", 375, 812)]
 
 def _url(path: Path) -> str:
     return "file://" + urllib.parse.quote(str(path.resolve()))
+
+
+def _find_system_browser():
+    """系统浏览器可执行文件：Edge 优先（Windows 上 Chrome 常因管理员终端/常驻实例不可用）。"""
+    candidates = []
+    # Windows 环境变量查找大小写不敏感；x86 路径的真实变量名是 ProgramFiles(x86)
+    for env in ("PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA"):
+        base = os.environ.get(env)
+        if base:
+            candidates += [
+                Path(base) / "Microsoft" / "Edge" / "Application" / "msedge.exe",
+                Path(base) / "Google" / "Chrome" / "Application" / "chrome.exe",
+            ]
+    for c in candidates:
+        if c.is_file():
+            return str(c)
+    for name in ("msedge", "chrome", "chromium"):
+        found = shutil.which(name)
+        if found:
+            return found
+    return None
+
+
+def degraded_screenshots(html_path: Path, shot_dir: Path):
+    """无 playwright 时的降级目检（B2）：系统浏览器无头整页截图。
+
+    只覆盖「人工目检」，溢出/裂图的自动判定仍需 playwright（JS 求值）。
+    无 JS 可用、量不到页面高度，取保守高窗（dogfood 实测 1280×11000 可整页）。
+    注意：截图文件落盘有秒级延迟——轮询等待而非查一次。
+    返回截图路径；浏览器不可用或超时返回 None。
+    """
+    browser = _find_system_browser()
+    if not browser:
+        return None
+    shot_dir.mkdir(parents=True, exist_ok=True)
+    out = shot_dir / "degraded-desktop.png"
+    subprocess.run(
+        [browser, "--headless", f"--screenshot={out}", "--window-size=1280,11000", _url(html_path)],
+        capture_output=True, timeout=60,
+    )
+    for _ in range(30):  # 落盘延迟：轮询至多 ~15s
+        if out.exists() and out.stat().st_size > 0:
+            return out
+        time.sleep(0.5)
+    return None
 
 
 def run_checks(html_path: Path, shot_dir: Path):
@@ -128,8 +177,16 @@ def main() -> int:
     try:
         import playwright  # noqa: F401
     except ImportError:
-        print("SKIPPED — 未安装 playwright（pip install playwright）。"
-              "本层为可选质检，不阻断交付；建议安装后复查视觉效果。")
+        html_path = Path(args.html)
+        shot_dir = Path(args.shots) if args.shots else html_path.parent / "qa" / "screenshots"
+        shot = degraded_screenshots(html_path, shot_dir)
+        if shot:
+            print("SKIPPED — 未安装 playwright，已降级为系统浏览器无头截图"
+                  "（仅人工目检，溢出/裂图自动判定不可用，不阻断交付）。")
+            print(f"目检截图: {shot}")
+        else:
+            print("SKIPPED — 未安装 playwright（pip install playwright），且未找到可用系统浏览器。"
+                  "本层为可选质检，不阻断交付；建议安装后复查视觉效果。")
         return 3
 
     html_path = Path(args.html)
