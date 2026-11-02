@@ -26,7 +26,14 @@ def main() -> int:
         print("用法: python scripts/validate.py <plan.json>", file=sys.stderr)
         return 1
     path = Path(sys.argv[1])
-    plan = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        plan = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        print(f"✗ 文件不存在：{path}", file=sys.stderr)
+        return 1
+    except json.JSONDecodeError as e:
+        print(f"✗ 不是合法 JSON：{path}（第 {e.lineno} 行：{e.msg}）", file=sys.stderr)
+        return 1
     errors = validate_plan(plan)
     if errors:
         print(f"FAILED — {len(errors)} 处问题：")

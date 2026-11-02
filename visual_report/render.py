@@ -149,7 +149,14 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     plan_path = Path(args.plan)
-    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    try:
+        plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        print(f"✗ 文件不存在：{plan_path}", file=sys.stderr)
+        return 2
+    except json.JSONDecodeError as e:
+        print(f"✗ 不是合法 JSON：{plan_path}（第 {e.lineno} 行：{e.msg}）", file=sys.stderr)
+        return 2
     base_dir = Path(args.base_dir) if args.base_dir else plan_path.parent
 
     try:

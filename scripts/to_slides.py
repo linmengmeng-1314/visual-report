@@ -179,7 +179,14 @@ def main() -> int:
     parser.add_argument("--minutes", type=int, default=15, help="宣讲时长（页数预算参考）")
     args = parser.parse_args()
 
-    report = json.loads(Path(args.plan).read_text(encoding="utf-8"))
+    try:
+        report = json.loads(Path(args.plan).read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        print(f"✗ 文件不存在：{args.plan}", file=sys.stderr)
+        return 1
+    except json.JSONDecodeError as e:
+        print(f"✗ 不是合法 JSON：{args.plan}（第 {e.lineno} 行：{e.msg}）", file=sys.stderr)
+        return 1
     deck = transform(report, theme=args.theme, minutes=args.minutes)
 
     errors = validate_plan(deck)

@@ -38,7 +38,14 @@ def main() -> int:
     args = parser.parse_args()
 
     plan_path = Path(args.plan)
-    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    try:
+        plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        print(f"✗ 文件不存在：{plan_path}", file=sys.stderr)
+        return 1
+    except json.JSONDecodeError as e:
+        print(f"✗ 不是合法 JSON：{plan_path}（第 {e.lineno} 行：{e.msg}）", file=sys.stderr)
+        return 1
 
     errors = validate_report(plan)
     if errors:

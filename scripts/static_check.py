@@ -158,7 +158,11 @@ def main() -> int:
     parser.add_argument("--json", help="检查结果 JSON 输出路径")
     args = parser.parse_args()
 
-    result = inspect_html(Path(args.html))
+    html_path = Path(args.html)
+    if not html_path.is_file():
+        print(f"✗ 文件不存在：{html_path}", file=sys.stderr)
+        return 2
+    result = inspect_html(html_path)
 
     if args.json:
         out = Path(args.json)
