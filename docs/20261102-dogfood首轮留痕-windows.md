@@ -50,21 +50,28 @@ visual-report 在家用 Mac 开发至 Phase 4b 全可用。2026-11-02 起在办�
 
 ## Backlog（发现未实施）
 
-### B1 主链方向与 direction 声明一致性 lint（dogfood 反馈 D）
+### B1 主链方向与 direction 声明一致性 lint（dogfood 反馈 D）——✅ 已实施（同日，`c5a3c79`）
 
 - 现象：`direction: lr` 的图里主链排成纵向三步，箭头先下后上折返；现有几何 lint
   （穿盒/压线/拐点/短线段）全部放行，靠无头截图目检才发现。
 - 建议：WARNING 级 lint——主链边行进方向与 direction 相逆的占比超阈值（约 30%）时
   提示"主链与 direction 不符，考虑改 tb 或重排 at"；或在 block-reference 补 tb/lr 选择心法。
 - 开放问题：阈值定多少；"主链"如何定义（入度最大的链？最长路径？）。
+- 实施结论：「主链」按**跨主轴边占比**定义（网格坐标 |Δ列| vs |Δ行|，对角边不计），
+  阈值 >30% 走**建议级**通道 `plan_warnings`（validate 打 ⚠、exit 0，不阻断渲染）；
+  block-reference 同步补 direction 心法。实测：纵向两连边塞 lr → `⚠ 相逆边占 100%`。
 
-### B2 无 playwright 时的降级视觉复核（dogfood 反馈 E2）
+### B2 无 playwright 时的降级视觉复核（dogfood 反馈 E2）——✅ 已实施（同日，`fccb087`）
 
 - 配方：`msedge --headless --screenshot=full.png --window-size=1280,11000 file:///path`，
   实测可行，把第三层质检从"跳过"变"降级"。
 - 注意点：Edge 截图文件落盘有秒级延迟，复核脚本要**轮询等文件**而非查一次；
   Chrome 常驻 + 管理员终端时 DevTools 管道问题同样影响 `--headless=new` 变体。
 - 边界：截图只覆盖"目检"，溢出/裂图的自动判定仍需 playwright（JS 求值）。
+- 实施结论：`degraded_screenshots()` 找系统浏览器（**Edge 优先**，Chrome 常不可用）无头
+  整页截图、轮询落盘；Windows 办公机实测出图。一个坑记下：环境变量名是
+  `ProgramFiles(x86)`（**无下划线**），第一版写成 `PROGRAM_FILES(X86)` 导致探测不到浏览器——
+  这类小错只有真机验证能拦住。
 
 ### B3 渲染期自检（dogfood 反馈 A 的上游建议）——✅ 已实施（同日，`927bbe5`）
 
@@ -76,7 +83,7 @@ visual-report 在家用 Mac 开发至 Phase 4b 全可用。2026-11-02 起在办�
 - 实施：`render_report` 拆出 `_render_report_html`，报告/deck 双路径产出后统一过
   `_self_check`（重复 DOM id 抛 ValueError 不落盘）；配套 `f2b6387` 让 revise 渲染
   失败按契约转 ReviseError（旧产物保留），自检异常在各入口都表现为友好报错。
-  **backlog 仅余 B1 / B2 / B4。**
+  **backlog 仅余 B4（环境项，非本仓库）。**
 
 ### B4（环境侧，非本仓库）uv ↔ setuptools 本地构建失败
 
