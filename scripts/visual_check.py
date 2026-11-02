@@ -3,7 +3,8 @@
 
 可选依赖：安装 playwright（pip install playwright）后自动启用；
 未安装时明确提示并跳过（退出码 3 = SKIPPED），不阻断 HTML 交付。
-使用系统 Chrome（channel="chrome"），无需下载 Chromium。
+浏览器回退链：系统 Chrome → 系统 Edge → Playwright 自带 Chromium，无需下载
+（Windows 上 Chrome 常因管理员终端/常驻实例的 DevTools 管道问题不可用，Edge 无头实测可用、命中率高）。
 
 检查项：
   1. 视口横向溢出（桌面 1280 / 移动 375 两档）
@@ -42,11 +43,16 @@ def run_checks(html_path: Path, shot_dir: Path):
     shot_dir.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as p:
-        # 优先系统 Chrome，失败回退 Playwright 自带 Chromium
-        try:
-            browser = p.chromium.launch(channel="chrome")
-        except Exception:
-            browser = p.chromium.launch()
+        # 回退链：系统 Chrome → 系统 Edge → Playwright 自带 Chromium
+        browser = None
+        for launch_kwargs in ({"channel": "chrome"}, {"channel": "msedge"}, {}):
+            try:
+                browser = p.chromium.launch(**launch_kwargs)
+                break
+            except Exception:
+                continue
+        if browser is None:
+            raise RuntimeError("Chrome / Edge / Chromium 均启动失败，请检查浏览器安装")
 
         for vname, width, height in VIEWPORTS:
             page = browser.new_page(viewport={"width": width, "height": height})
