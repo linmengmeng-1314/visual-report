@@ -906,7 +906,8 @@ def lint_diagram(nodes: List[dict], edges: List[dict]) -> List[str]:
         if len(n_lines) > NODE_TEXT_MAX_LINES:
             issues.append(
                 f"[diagram-geo/文字超框] 节点「{n['id']}」标签分 {len(n_lines)} 行，"
-                f"超过盒高容量 {NODE_TEXT_MAX_LINES} 行 — 请缩短 label 或用 \\n 手工分行")
+                f"超过盒高容量 {NODE_TEXT_MAX_LINES} 行 — 请缩短 label"
+                "（手工 \\n 分行同样受宽度检查约束，不能减少行数）")
 
     for idx, lab in plan["labels"].items():
         e = routes[idx][0]
