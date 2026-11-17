@@ -11,7 +11,7 @@ description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图�
 
 1. **你不写 HTML**。你写的是结构化的 report-plan.json，渲染由 `python -m visual_report.render` 完成。
 2. **校验不过不渲染**。每次渲染前先跑 validate；失败就修 plan，绝不绕过。
-3. **内容真实性**：不得编造素材中不存在的数据；示意数据必须加 `dataNote` 标注。
+3. **内容真实性**：不得编造素材中不存在的数据；示意数据必须加 `dataNote` 标注；`meta.author` 仅当素材或用户明确给出署名时才填，无则省略整个字段（渲染器有兜底）——禁止从上下文里猜一个名字当署名。
 4. **稳定 ID**：section/block 的 id 一经生成不随意变更（后续自然语言修改依赖它定位）。
 5. **严格离线**：图片只允许本地路径（构建期 base64 内嵌）或 data: URI；禁止任何 http(s) 资源。
 
@@ -95,4 +95,4 @@ description: 把 Markdown / 项目素材生成精美的单文件离线 HTML 图�
 - ✗ 所有 section 用同一种布局
 - ✗ 在 plan 的 content 字段里写 HTML 标签（只允许 Markdown）
 - ✗ 引用外链图片/字体/脚本
-- ✗ 用户要幻灯片/演示文稿时强行用本工具（明确告知：幻灯片模式在路线图 Phase 4）
+- ✗ 用户要幻灯片/宣讲时用报告模式硬凑（切幻灯片模式，生成 slide-plan.json，见下）

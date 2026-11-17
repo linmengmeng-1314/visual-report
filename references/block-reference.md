@@ -10,7 +10,7 @@
   "meta": {
     "title": "报告标题",            // 必填
     "subtitle": "副标题",
-    "author": "署名",
+    "author": "署名（素材/用户明确给出才填，否则省略）",
     "date": "2026-11",
     "theme": "minimal",             // minimal | corporate | tech，必填
     "lang": "zh-CN",
