@@ -77,7 +77,9 @@ RUNTIME_JS = """(function(){
     var s = e.target.closest('.vr-slide');
     if (overview && s) { pickFromOverview(slides.indexOf(s)); return; }
     if (e.target.closest('a, [data-node-id]')) return;  // 链接与图节点聚焦不触发翻页
-    if (!overview) go(cur + 1);
+    // 仅全屏（放映语义）点击前进，对齐 PowerPoint 放映习惯；窗口阅读模式点击留给
+    // 选词复制/查看图表，翻页走键盘（翻页笔发的是键盘事件，不受影响）
+    if (!overview && document.fullscreenElement) go(cur + 1);
   });
 
   // 深链 #/N
