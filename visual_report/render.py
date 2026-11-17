@@ -32,6 +32,27 @@ _RUNTIME_JS = """(function(){
     }, {passive:true});
   }
 })();
+(function(){
+  // 侧边章节圆点导航：滚动联动高亮当前章（无 JS 时锚点跳转仍可用，仅不高亮）
+  var rail = document.querySelector('.vr-rail');
+  if (!rail) return;
+  var links = [].slice.call(rail.querySelectorAll('a'));
+  var targets = links.map(function(a){
+    return document.getElementById((a.getAttribute('href') || '').slice(1));
+  });
+  function update(){
+    var pos = window.scrollY + window.innerHeight * 0.3;
+    var active = -1;
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i] && targets[i].offsetTop <= pos) active = i;
+    }
+    links.forEach(function(a, i){ a.classList.toggle('is-active', i === active); });
+  }
+  window.addEventListener('scroll', function(){
+    window.requestAnimationFrame(update);
+  }, {passive:true});
+  update();
+})();
 """ + FOCUS_JS
 
 
@@ -110,9 +131,9 @@ def _render_report_html(plan: dict, base_dir: Optional[Path]) -> str:
 
     sections = plan["sections"]
 
-    # 目录（hero 之外的所有 section）
+    # 侧边章节圆点导航（hero 之外的所有 section；hover 提示章节名，JS 滚动联动高亮）
     toc = "".join(
-        f'<a href="#{_esc(s["id"])}">{_esc(s["title"])}</a>'
+        f'<a href="#{_esc(s["id"])}" data-title="{_esc(s["title"])}" aria-label="{_esc(s["title"])}"></a>'
         for s in sections
         if s["layout"] != "hero"
     )
@@ -132,10 +153,7 @@ def _render_report_html(plan: dict, base_dir: Optional[Path]) -> str:
 </style>
 </head>
 <body>
-<nav class="vr-topbar">
-  <span class="vr-title">{_esc(meta['title'])}</span>
-  <div class="vr-toc">{toc}</div>
-</nav>
+<nav class="vr-rail" aria-label="章节导航">{toc}</nav>
 {body}
 <footer class="vr-footer">{_esc(footer_text)}</footer>
 <a class="vr-backtop" href="#" aria-label="返回顶部">↑</a>

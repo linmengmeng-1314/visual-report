@@ -1,6 +1,8 @@
 /* 主题：Corporate — 企业商务（正式项目汇报） */
 :root {
-  --bg: #ffffff;
+  --bg: #edf1f7;            /* 页面画布：冷灰蓝，衬托白色内容卡 */
+  --sheet: #ffffff;         /* 内容卡（章节卡片）底色 */
+  --sheet-alt: #f8fafd;     /* 交替章节内容卡底色 */
   --surface: #f4f6f9;
   --surface-2: #e8ecf2;
   --text-1: #17233b;
@@ -9,7 +11,7 @@
   --accent: #1e4e8c;
   --accent-ink: #ffffff;
   --accent-soft: rgba(30, 78, 140, 0.07);
-  --border: #dde3ec;
+  --border: #c9d4e3;        /* 比旧值深一档：白底上表格线/描边清晰可见 */
   --chart-1: #1e4e8c;
   --chart-2: #2e9e8f;
   --chart-3: #d69e2e;
@@ -18,5 +20,24 @@
   --chart-6: #3191c9;
   --radius: 8px;
   --radius-s: 5px;
-  --shadow: 0 1px 3px rgba(23, 35, 59, 0.08), 0 4px 12px rgba(23, 35, 59, 0.06);
+  --shadow: 0 1px 3px rgba(23, 35, 59, 0.1), 0 6px 16px rgba(23, 35, 59, 0.07);
 }
+
+/* ---- corporate 版式：灰蓝画布 + 白色章节卡片（纯白平铺底太平，卡片化拉开层次） ---- */
+.vr-section { background: transparent; }
+.vr-section--alt { background: transparent; }
+.vr-section-inner {
+  background: var(--sheet);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space-5) var(--space-5);
+}
+@media (max-width: 720px) {
+  .vr-section-inner { padding: var(--space-4); border-radius: var(--radius); }
+}
+.vr-section--alt .vr-section-inner { background: var(--sheet-alt); }
+/* alt 卡上的嵌套卡片反白，避免与卡片底色糊在一起 */
+.vr-section--alt .vr-card { background: var(--sheet); }
+/* 封面 KPI 磁贴位于画布上，反白成卡 */
+.vr-hero .vr-kpi { background: var(--sheet); }
