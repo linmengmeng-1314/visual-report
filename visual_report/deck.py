@@ -39,11 +39,23 @@ RUNTIME_JS = """(function(){
   function layoutOverview(on){
     overview = on;
     deck.classList.toggle('vr-overview', on);
+    if (!on) {
+      slides.forEach(function(s){
+        s.style.transform = ''; s.style.opacity = '';
+        s.classList.remove('vr-active-in-overview');  // 退出时清 outline，否则残留在当前页
+      });
+      return;
+    }
+    // 网格随页数自适应：缩略图整体收进 1280×720 画布，任何页数一屏可见，不溢出也不需要滚动
+    var cols = Math.max(1, Math.ceil(Math.sqrt(slides.length)));
+    var rows = Math.ceil(slides.length / cols);
+    var sc = Math.min((1280 - 56) / (cols * 1280), (720 - 56) / (rows * 720)) * 0.92;
+    var cw = 1280 / cols, ch = 720 / rows;
     slides.forEach(function(s, i){
-      if (!on) { s.style.transform = ''; s.style.opacity = ''; return; }
-      var col = i % 4, row = Math.floor(i / 4);
-      var sc = 0.22;
-      s.style.transform = 'translate(' + (col * 300 + 40) + 'px,' + (row * 190 + 30) + 'px) scale(' + sc + ')';
+      var col = i % cols, row = Math.floor(i / cols);
+      // 单元格内居中；translate 需抵消默认中心 transform-origin（640/360 为画布中心）
+      var x = col * cw + (cw - 1280 * sc) / 2, y = row * ch + (ch - 720 * sc) / 2;
+      s.style.transform = 'translate(' + (x - 640 * (1 - sc)) + 'px,' + (y - 360 * (1 - sc)) + 'px) scale(' + sc + ')';
       s.style.opacity = (i === cur) ? '1' : '0.55';
       s.classList.toggle('vr-active-in-overview', i === cur);
     });
