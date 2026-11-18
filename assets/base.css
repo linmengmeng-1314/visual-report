@@ -454,6 +454,9 @@ body {
 }
 .vr-slide.vr-active { display: flex; }
 .vr-slide.vr-active-in-overview { outline: 3px solid var(--accent); outline-offset: 6px; }
+/* 总览模式：layoutOverview 给所有页平铺 transform，但 display 仍走上面的 none/flex 补集，
+   不放开则网格隐形只剩当前页；特异性 0-2-0 覆盖 .vr-slide 无需 !important */
+.vr-overview .vr-slide { display: flex; }
 
 .vr-slide-title, .vr-slide-divider, .vr-slide-statement {
   flex: 1;

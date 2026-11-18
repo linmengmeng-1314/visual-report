@@ -73,6 +73,23 @@ PASS——证明旧 lint 拦不住；已内联为 test_diagram.py 回归用例�
 原写"或用 \n 手工分行"——第五波后 \n 行同样受宽度断行约束，手工分行不能减少行数，
 文案改为「请缩短 label（手工 \n 分行同样受宽度检查约束，不能减少行数）」。
 
+### 第六波：deck 总览只剩当前页（真实项目 dogfood 回传，2026-11-18）
+
+42 页真实 deck 回传：按 O 进总览只有当前页（缩小 + outline），其余页全部不可见。
+
+| 问题 | 根因 | 修复 |
+|---|---|---|
+| 总览网格隐形（transform 已平铺但页面 display 仍为 none） | `.vr-slide` 默认 `display:none`、仅 `.vr-active` 为 flex；JS 切换的 `vr-overview` 类在 CSS 侧零消费——Phase 4 存量缺口，总览从未真正显示过网格 | base.css 补 `.vr-overview .vr-slide { display: flex }`（特异性 0-2-0 覆盖默认 none，无需 !important） |
+
+防回归双保险：静态守卫（产物 CSS 必含该选择器，test_deck.py 零依赖可跑）+
+playwright e2e（模拟 keydown 'o'，断言全部页 computed display ≠ none、再按 O 恢复
+单页；未装自动跳过）。修复后 42 页显示 7×6 网格，当前页全亮 + outline、其余 0.55。
+
+**复盘**：本机 headless 浏览器被安全软件无声拦截（见 B4），浏览器级验证整体缺席——
+总览网格重写（dc6c6ab）时的数值探针本可当场拦下此 bug（display:none 元素 rect 全零，
+`ovArea` 断言必挂），但探针根本没跑起来。跨机器 dogfood（Mac 侧跑 e2e）是本机环境
+盲区的唯一补齐手段，本波即实证。
+
 ### 值得记下的复盘：dup-id 的两次修复
 
 第一次（dogfood 会话就地修）：模块级计数器 `vr-arrow-{n}`。**被自己的测试拦下**——

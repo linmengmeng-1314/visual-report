@@ -54,6 +54,46 @@ def test_deck_runtime_present(deck_plan):
     assert ".vr-note-text { display: none; }" in html
 
 
+def test_deck_overview_visibility_rule_present(deck_plan):
+    """静态守卫：总览可见性规则必须进产物 CSS。
+
+    2026-11-18 bug 回归点：layoutOverview 平铺所有页的 transform，但 .vr-slide 默认
+    display:none（仅 .vr-active 为 flex），缺 .vr-overview 规则时总览只剩当前页。
+    """
+    html = render_report(deck_plan)
+    assert ".vr-overview .vr-slide" in html
+
+
+def test_deck_overview_e2e_all_slides_visible(deck_plan, tmp_path):
+    """总览 e2e：O 进总览所有页 computed display 不为 none，O 退出恢复单页。
+
+    需 playwright（可选依赖，未装自动跳过）；静态守卫见上一条测试。
+    """
+    pytest.importorskip("playwright")
+    from playwright.sync_api import sync_playwright
+
+    out = tmp_path / "deck.html"
+    out.write_text(render_report(deck_plan), encoding="utf-8")
+    n = len(deck_plan["slides"])
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1280, "height": 720})
+            page.goto(out.as_uri())
+            page.keyboard.press("o")
+            assert page.eval_on_selector(".vr-deck", "e => e.classList.contains('vr-overview')")
+            visible = page.eval_on_selector_all(
+                ".vr-slide", "els => els.filter(e => getComputedStyle(e).display !== 'none').length")
+            assert visible == n, f"总览可见 {visible}/{n} 页"
+            page.keyboard.press("o")
+            assert not page.eval_on_selector(".vr-deck", "e => e.classList.contains('vr-overview')")
+            active = page.eval_on_selector_all(
+                ".vr-slide", "els => els.filter(e => e.classList.contains('vr-active')).length")
+            assert active == 1
+        finally:
+            browser.close()
+
+
 def test_deck_passes_static_check(deck_plan, tmp_path):
     out = tmp_path / "deck.html"
     out.write_text(render_report(deck_plan), encoding="utf-8")
