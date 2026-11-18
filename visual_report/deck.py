@@ -82,6 +82,13 @@ RUNTIME_JS = """(function(){
     if (!overview && document.fullscreenElement) go(cur + 1);
   });
 
+  // 地址栏改 hash 跳页：初始化只读一次 hash，不监听则改 #/N 无响应（刷新才生效）。
+  // go 内 replaceState 不触发 hashchange，无回环；目标页与 cur 相同则跳过
+  addEventListener('hashchange', function(){
+    var hm = location.hash.match(/^#\\/(\\d+)/);
+    if (hm) { var n = parseInt(hm[1], 10); if (n !== cur) go(n, false); }
+  });
+
   // 深链 #/N
   var m = location.hash.match(/^#\\/(\\d+)/);
   fit(); go(m ? parseInt(m[1], 10) : 0, false);

@@ -47,8 +47,8 @@ def test_deck_runtime_present(deck_plan):
     html = render_report(deck_plan)
     assert "vr-deck" in html
     assert "vr-slide" in html
-    # 运行时关键能力：键盘、全屏、总览、备注
-    for key in ("ArrowRight", "ArrowLeft", "requestFullscreen", "layoutOverview", "vr-notes"):
+    # 运行时关键能力：键盘、全屏、总览、备注、地址栏 hash 跳页
+    for key in ("ArrowRight", "ArrowLeft", "requestFullscreen", "layoutOverview", "vr-notes", "hashchange"):
         assert key in html
     # 备注原文必须被隐藏（视觉评审教训：泄漏到画面）
     assert ".vr-note-text { display: none; }" in html
@@ -90,6 +90,12 @@ def test_deck_overview_e2e_all_slides_visible(deck_plan, tmp_path):
             active = page.eval_on_selector_all(
                 ".vr-slide", "els => els.filter(e => e.classList.contains('vr-active')).length")
             assert active == 1
+            # 地址栏改 hash 跳页（2026-11-18 bug 2 回归：曾无 hashchange 监听，改 #/N 无响应）
+            page.evaluate("location.hash = '#/3'")
+            page.wait_for_timeout(50)
+            idx = page.eval_on_selector_all(
+                ".vr-slide", "els => els.findIndex(e => e.classList.contains('vr-active'))")
+            assert idx == 3
         finally:
             browser.close()
 

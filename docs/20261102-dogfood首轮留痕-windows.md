@@ -75,11 +75,13 @@ PASS——证明旧 lint 拦不住；已内联为 test_diagram.py 回归用例�
 
 ### 第六波：deck 总览只剩当前页（真实项目 dogfood 回传，2026-11-18）
 
-42 页真实 deck 回传：按 O 进总览只有当前页（缩小 + outline），其余页全部不可见。
+42 页真实 deck 回传两笔：按 O 进总览只有当前页（其余页不可见）；地址栏改 hash
+（#/10 → #/12 回车）跳页无响应，刷新才生效。
 
 | 问题 | 根因 | 修复 |
 |---|---|---|
 | 总览网格隐形（transform 已平铺但页面 display 仍为 none） | `.vr-slide` 默认 `display:none`、仅 `.vr-active` 为 flex；JS 切换的 `vr-overview` 类在 CSS 侧零消费——Phase 4 存量缺口，总览从未真正显示过网格 | base.css 补 `.vr-overview .vr-slide { display: flex }`（特异性 0-2-0 覆盖默认 none，无需 !important） |
+| 地址栏改 hash 跳页无响应 | 翻页仅键盘/点击驱动内部 go()，runtime 不监听 hashchange，hash 只在初始化读一次 | runtime 增 hashchange 监听：解析 #/N、与 cur 不同才 go（go 内 replaceState 不触发 hashchange，无回环） |
 
 防回归双保险：静态守卫（产物 CSS 必含该选择器，test_deck.py 零依赖可跑）+
 playwright e2e（模拟 keydown 'o'，断言全部页 computed display ≠ none、再按 O 恢复
